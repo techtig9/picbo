@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Set up your workspace — Picbo.ai</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%238b7cff'/%3E%3Cstop offset='1' stop-color='%2345d9c0'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='9' fill='url(%23g)'/%3E%3C/svg%3E">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  // Guarded: if the CDN is blocked (ad-blocker, offline, firewall), the page
+  // still works — it just falls back to the plain custom CSS design system.
+  if (window.tailwind) {
+    window.tailwind.config = {
+      corePlugins: { preflight: false },
+      theme: {
+        extend: {
+          colors: {
+            void: '#000000',
+            'void-soft': '#07070a',
+            panel: '#0b0b11',
+            'panel-2': '#101017',
+            ink: '#eaf6ff',
+            'ink-2': '#a9bbcb',
+            'ink-dim': '#768696',
+            'ink-faint': '#6c7f90',
+            violet: '#00e5ff',
+            'violet-deep': '#006c8a',
+            'violet-2': '#0080ff',
+            teal: '#39ff88',
+            rose: '#ff2e9a',
+            amber: '#ffb800'
+          },
+          fontFamily: {
+            display: ['Space Grotesk', 'sans-serif'],
+            accent: ['Instrument Serif', 'serif'],
+            ui: ['Instrument Sans', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          },
+          borderRadius: { s: '7px', m: '12px', l: '18px', xl: '26px' }
+        }
+      }
+    };
+  }
+</script>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<a href="#main-content" class="skip-link">Skip to main content</a>
+
+<div id="loader"><div class="loader-mark"></div><div class="loader-text">PICBO.AI</div></div>
+<div class="noise"></div>
+<div class="aurora-field"><span class="a1"></span><span class="a2"></span><span class="a3"></span></div>
+
+<div class="ob-shell" id="main-content">
+  <div class="glass ob-card reveal in">
+    <div class="ob-progress">
+      <i><em></em></i><i><em></em></i><i><em></em></i><i><em></em></i><i><em></em></i>
+    </div>
+
+    <div class="ob-step active">
+      <h2>What's your name?</h2>
+      <p class="hint">This is how we'll greet you across Picbo.ai.</p>
+      <div class="field"><label>Full name</label><input type="text" placeholder="e.g. Ayesha Khan"></div>
+      <div class="field">
+        <label>Country</label>
+        <select><option>Pakistan</option><option>United States</option><option>United Kingdom</option><option>United Arab Emirates</option><option>India</option><option>Other</option></select>
+      </div>
+      <div class="field">
+        <label>Preferred language</label>
+        <select><option>English</option><option>Urdu</option><option>Arabic</option><option>Spanish</option><option>French</option></select>
+      </div>
+    </div>
+
+    <div class="ob-step">
+      <h2>What do you do?</h2>
+      <p class="hint">Helps us tailor style recommendations.</p>
+      <div class="pick-grid" data-single="true">
+        <div class="pick-item">Designer</div>
+        <div class="pick-item">Marketer</div>
+        <div class="pick-item">Photographer</div>
+        <div class="pick-item">Founder</div>
+        <div class="pick-item">Content creator</div>
+        <div class="pick-item">Other</div>
+      </div>
+    </div>
+
+    <div class="ob-step">
+      <h2>What kind of business is this for?</h2>
+      <p class="hint">Optional, but helps us set smart defaults.</p>
+      <div class="pick-grid two" data-single="true">
+        <div class="pick-item">E-commerce</div>
+        <div class="pick-item">Agency / studio</div>
+        <div class="pick-item">Restaurant / hospitality</div>
+        <div class="pick-item">Fashion &amp; beauty</div>
+        <div class="pick-item">Personal brand</div>
+        <div class="pick-item">Just exploring</div>
+      </div>
+    </div>
+
+    <div class="ob-step">
+      <h2>What will you mainly create?</h2>
+      <p class="hint">Pick as many as apply.</p>
+      <div class="pick-grid">
+        <div class="pick-item">Product photos</div>
+        <div class="pick-item">Social posts</div>
+        <div class="pick-item">Logos</div>
+        <div class="pick-item">Reels</div>
+        <div class="pick-item">Video ads</div>
+        <div class="pick-item">Portraits</div>
+        <div class="pick-item">Posters</div>
+        <div class="pick-item">3D renders</div>
+        <div class="pick-item">Voice / audio</div>
+      </div>
+    </div>
+
+    <div class="ob-step">
+      <h2>Your experience level?</h2>
+      <p class="hint">We'll adjust the interface — simple or advanced.</p>
+      <div class="pick-grid two" data-single="true">
+        <div class="pick-item">New to AI tools</div>
+        <div class="pick-item">Comfortable</div>
+        <div class="pick-item">Power user</div>
+        <div class="pick-item">Professional / studio</div>
+      </div>
+      <div class="field mt-6">
+        <label>Preferred visual style</label>
+        <select><option>Realistic</option><option>Cinematic</option><option>Minimal</option><option>3D / Pixar</option><option>Editorial</option><option>Cyberpunk</option></select>
+      </div>
+    </div>
+
+    <div class="ob-nav">
+      <button class="btn btn-line" id="obBack">Back</button>
+      <button class="btn btn-primary" id="obNext">Continue</button>
+    </div>
+  </div>
+</div>
+
+<!-- Lumi AI Assistant -->
+<button class="lumi-bubble" id="lumiBubble" aria-label="Ask Lumi">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M8.5 15.5c1-2 2.5-3 3.5-3s2.5 1 3.5 3M9 9.5h.01M15 9.5h.01"/></svg>
+  <span class="lumi-dot"></span>
+</button>
+<div class="lumi-panel" id="lumiPanel">
+  <div class="lumi-head">
+    <div class="lumi-head-id">
+      <div class="lumi-avatar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M8.5 15.5c1-2 2.5-3 3.5-3s2.5 1 3.5 3M9 9.5h.01M15 9.5h.01"/></svg></div>
+      <div><b>Lumi</b><span>● Online</span></div>
+    </div>
+    <button class="modal-close" id="lumiClose" aria-label="Close">✕</button>
+  </div>
+  <div class="lumi-thread" id="lumiThread">
+    <div class="lumi-msg lumi-bot">Hi, I'm Lumi 👋 Ask me about credits, pricing, or which mode fits what you're making.</div>
+  </div>
+  <div class="lumi-suggestions">
+    <span class="lumi-suggestion">How do credits work?</span>
+    <span class="lumi-suggestion">What's an animated ad?</span>
+    <span class="lumi-suggestion">Compare plans</span>
+  </div>
+  <form class="lumi-form" id="lumiForm">
+    <input type="text" id="lumiInput" placeholder="Ask Lumi anything…" autocomplete="off">
+    <button type="submit" aria-label="Send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg></button>
+  </form>
+</div>
+
+<script src="assets/js/main.js"></script>
+</body>
+</html>

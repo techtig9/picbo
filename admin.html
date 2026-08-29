@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin panel — Picbo.ai</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%238b7cff'/%3E%3Cstop offset='1' stop-color='%2345d9c0'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='9' fill='url(%23g)'/%3E%3C/svg%3E">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  // Guarded: if the CDN is blocked (ad-blocker, offline, firewall), the page
+  // still works — it just falls back to the plain custom CSS design system.
+  if (window.tailwind) {
+    window.tailwind.config = {
+      corePlugins: { preflight: false },
+      theme: {
+        extend: {
+          colors: {
+            void: '#000000',
+            'void-soft': '#07070a',
+            panel: '#0b0b11',
+            'panel-2': '#101017',
+            ink: '#eaf6ff',
+            'ink-2': '#a9bbcb',
+            'ink-dim': '#768696',
+            'ink-faint': '#6c7f90',
+            violet: '#00e5ff',
+            'violet-deep': '#006c8a',
+            'violet-2': '#0080ff',
+            teal: '#39ff88',
+            rose: '#ff2e9a',
+            amber: '#ffb800'
+          },
+          fontFamily: {
+            display: ['Space Grotesk', 'sans-serif'],
+            accent: ['Instrument Serif', 'serif'],
+            ui: ['Instrument Sans', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          },
+          borderRadius: { s: '7px', m: '12px', l: '18px', xl: '26px' }
+        }
+      }
+    };
+  }
+</script>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<a href="#main-content" class="skip-link">Skip to main content</a>
+
+<div id="loader"><div class="loader-mark"></div><div class="loader-text">PICBO.AI</div></div>
+<div class="noise"></div>
+<div class="aurora-field"><span class="a1"></span><span class="a2"></span><span class="a3"></span></div>
+
+<div class="app-shell">
+
+  <aside class="side">
+    <a href="index.html" class="logo"><span class="logo-mark"></span><span>Picbo<em>.ai</em></span></a>
+
+    <nav class="side-nav">
+      <div class="side-group">Owner access</div>
+      <a class="side-link active" href="admin.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Overview</a>
+      <a class="side-link" href="#users"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="8" r="3.4"/><path d="M2 20c1-3.6 3.8-5.6 7-5.6s6 2 7 5.6"/><path d="M16 9a3 3 0 1 0 0-6"/><path d="M17.5 14.5c2.6.5 4 2.3 4.6 5.5"/></svg>Users</a>
+      <a class="side-link" href="#payments"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20"/></svg>Payments</a>
+      <a class="side-link" href="#affiliates"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4L12 2z"/></svg>Referrals &amp; Affiliates</a>
+      <a class="side-link" href="#moderation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 9v4M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg>Moderation</a>
+      <a class="side-link" href="#flags"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.9 2.9l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6V21a2 2 0 1 1-4 0v-.2a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.9-2.9l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.6-1H3a2 2 0 1 1 0-4h.2a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.9-2.9l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.6V3a2 2 0 1 1 4 0v.2a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.9 2.9l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.6 1H21a2 2 0 1 1 0 4h-.2a1.7 1.7 0 0 0-1.6 1z"/></svg>Feature flags</a>
+      <a class="side-link" href="#coupons"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-6M2 7h20v5H2z"/><path d="M12 7v13"/></svg>Coupons</a>
+
+      <div class="side-group">Back to app</div>
+      <a class="side-link" href="dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M15 18l-6-6 6-6"/></svg>User dashboard</a>
+    </nav>
+
+    <div class="glass side-token">
+      <div class="flex justify-between items-center">
+        <span class="text-xs text-ink-dim">Access level</span>
+        <span class="badge dot" style="font-size:10.5px">Owner — unlimited</span>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main" id="main-content">
+    <div class="top-row">
+      <div><h1 class="page-title">Admin <em class="serif-it">overview.</em></h1></div>
+      <div class="top-actions">
+        <span class="badge dot">Saad Ali · Owner</span>
+        <div class="avatar"><img src="https://picsum.photos/seed/saad-ali-founder/80/80" alt="Admin avatar"></div>
+      </div>
+    </div>
+
+    <div class="kpi-row reveal-stagger">
+      <div class="glass kpi"><span>MRR</span><b>$41,860</b><em>↑ 9.4% vs last month</em></div>
+      <div class="glass kpi"><span>Active subscriptions</span><b>2,914</b><em>Starter · Pro · Business · Agency</em></div>
+      <div class="glass kpi"><span>Monthly churn</span><b>3.1%</b><em>↓ 0.4pt vs last month</em></div>
+      <div class="glass kpi"><span>Rough LTV</span><b>$318</b><em>at current churn</em></div>
+    </div>
+
+    <div class="glass reveal p-7 mb-6">
+      <div class="top-row mb-1.5">
+        <h3 class="font-accent italic text-[19px]">Credit usage by action</h3>
+        <span class="badge">Margin guardrail</span>
+      </div>
+      <p class="text-[13px] text-ink-dim mb-[18px]">Watch this weekly — if usage skews toward the cheapest actions, revisit credit costs or plan allotments before margin erodes.</p>
+      <div class="tc-grid">
+        <div class="tc-item"><b>38%</b><span>Simple photo (40 cr)</span></div>
+        <div class="tc-item"><b>21%</b><span>Complex photo (80 cr)</span></div>
+        <div class="tc-item"><b>16%</b><span>Ad creative (120–300 cr)</span></div>
+        <div class="tc-item"><b>14%</b><span>Photoshoot set (350 cr)</span></div>
+        <div class="tc-item"><b>9%</b><span>Animated ad (500 cr)</span></div>
+        <div class="tc-item"><b>2%</b><span>AI edit (60 cr)</span></div>
+      </div>
+    </div>
+
+    <div class="glass reveal p-7 mb-6" id="payments">
+      <div class="top-row mb-1.5">
+        <h3 class="font-accent italic text-[19px]">Recent Paddle transactions</h3>
+        <span class="badge dot">Auto-verified</span>
+      </div>
+      <p class="text-[13px] text-ink-dim mb-[18px]">Paddle is Merchant of Record — subscriptions and top-ups are captured and verified automatically. This is a read-only log.</p>
+      <table class="table">
+        <thead><tr><th>User</th><th>Plan</th><th>Type</th><th>Amount</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>ayesha@studio.co</td><td>Business</td><td>Subscription renewal</td><td>$59.00</td><td><span class="status-pill ok">Paid</span></td></tr>
+          <tr><td>marcus.w@agency.io</td><td>Pro</td><td>New subscription</td><td>$24.65</td><td><span class="status-pill ok">Paid</span></td></tr>
+          <tr><td>farah.z@brand.com</td><td>Starter</td><td>Credit top-up · 10,000</td><td>$32.00</td><td><span class="status-pill ok">Paid</span></td></tr>
+          <tr><td>hamzaraza99@gmail.com</td><td>Pro</td><td>Subscription renewal</td><td>$29.00</td><td><span class="status-pill pending">Retrying</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="glass reveal p-7 mb-6" id="affiliates">
+      <div class="top-row mb-1.5">
+        <h3 class="font-accent italic text-[19px]">Affiliate payout approvals</h3>
+        <span class="badge">Paid outside Paddle</span>
+      </div>
+      <p class="text-[13px] text-ink-dim mb-[18px]">Affiliate commissions aren't run through Paddle — review and release payouts manually.</p>
+      <table class="table">
+        <thead><tr><th>Affiliate</th><th>Referred signups</th><th>Commission due</th><th>Status</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>studiobyzee</td><td>14 paid</td><td>$83.60</td>
+            <td><span class="status-pill pending">Pending</span></td>
+            <td><button class="btn btn-primary btn-sm" onclick="picboToast('Payout released')">Release</button></td>
+          </tr>
+          <tr>
+            <td>creativeloopco</td><td>6 paid</td><td>$29.10</td>
+            <td><span class="status-pill pending">Pending</span></td>
+            <td><button class="btn btn-primary btn-sm" onclick="picboToast('Payout released')">Release</button></td>
+          </tr>
+          <tr>
+            <td>adsbyhamza</td><td>22 paid</td><td>$131.40</td>
+            <td><span class="status-pill ok">Paid</span></td>
+            <td><button class="btn btn-line btn-sm" disabled>Done</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="glass reveal p-7 mb-6" id="moderation">
+      <div class="top-row mb-1.5">
+        <h3 class="font-accent italic text-[19px]">Moderation queue</h3>
+        <span class="badge">3 flagged</span>
+      </div>
+      <table class="table">
+        <thead><tr><th>User</th><th>Type</th><th>Flag reason</th><th>Status</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr><td>user_7734@mail.com</td><td>Prompt</td><td>Possible trademarked logo request</td><td><span class="status-pill pending">Review</span></td><td><button class="btn btn-line btn-sm" onclick="picboToast('Content cleared')">Clear</button></td></tr>
+          <tr><td>user_2091@mail.com</td><td>Lumi chat</td><td>Off-topic / abuse pattern</td><td><span class="status-pill pending">Review</span></td><td><button class="btn btn-line btn-sm" onclick="picboToast('Account warned')">Warn user</button></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="glass reveal p-7 mb-6" id="flags">
+      <div class="top-row mb-1.5">
+        <h3 class="font-accent italic text-[19px]">Feature flags</h3>
+      </div>
+      <table class="table">
+        <thead><tr><th>Feature</th><th>Rollout</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>Animated ads (Pro+)</td><td>100% of Pro/Business/Agency</td><td><span class="status-pill ok">Live</span></td></tr>
+          <tr><td>API access (Business+)</td><td>100% of Business/Agency</td><td><span class="status-pill ok">Live</span></td></tr>
+          <tr><td>Overage billing</td><td>50% of Business accounts</td><td><span class="status-pill pending">Rolling out</span></td></tr>
+          <tr><td>Agency client sub-accounts</td><td>0%</td><td><span class="status-pill no">Off</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="glass reveal p-7 mb-6" id="coupons">
+      <div class="top-row mb-1.5">
+        <h3 class="font-accent italic text-[19px]">Coupons</h3>
+        <button class="btn btn-primary btn-sm" onclick="picboToast('Coupon created')">New coupon</button>
+      </div>
+      <table class="table">
+        <thead><tr><th>Code</th><th>Discount</th><th>Used</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>LAUNCH10</td><td>10–20% first month</td><td>412</td><td><span class="status-pill ok">Active</span></td></tr>
+          <tr><td>WINBACK20</td><td>20% off, 1 month</td><td>38</td><td><span class="status-pill ok">Active</span></td></tr>
+          <tr><td>EARLYBIRD</td><td>15% off yearly</td><td>96</td><td><span class="status-pill no">Expired</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="glass reveal" style="padding:26px;" id="users">
+      <div class="top-row mb-1.5">
+        <h3 class="font-accent italic text-[19px]">Recent users</h3>
+        <a href="#" class="text-[13px] text-violet font-semibold">View all users</a>
+      </div>
+      <table class="table">
+        <thead><tr><th>Name</th><th>Email</th><th>Country</th><th>Plan</th><th>Registered</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>Ayesha Khan</td><td>ayesha@studio.co</td><td>Pakistan</td><td>Business</td><td>Jul 21, 2026 · 10:42 AM</td><td><span class="status-pill ok">Verified</span></td></tr>
+          <tr><td>Marcus Webb</td><td>marcus.w@agency.io</td><td>United States</td><td>Pro</td><td>Jul 20, 2026 · 6:15 PM</td><td><span class="status-pill ok">Verified</span></td></tr>
+          <tr><td>Farah Zaidi</td><td>farah.z@brand.com</td><td>United Kingdom</td><td>Starter</td><td>Jul 19, 2026 · 2:03 PM</td><td><span class="status-pill ok">Verified</span></td></tr>
+          <tr><td>Hamza Raza</td><td>hamzaraza99@gmail.com</td><td>Pakistan</td><td>Free</td><td>Jul 18, 2026 · 9:27 AM</td><td><span class="status-pill pending">Unverified</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+  <p>Done</p>
+</div>
+
+<!-- Lumi AI Assistant -->
+<button class="lumi-bubble" id="lumiBubble" aria-label="Ask Lumi">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M8.5 15.5c1-2 2.5-3 3.5-3s2.5 1 3.5 3M9 9.5h.01M15 9.5h.01"/></svg>
+  <span class="lumi-dot"></span>
+</button>
+<div class="lumi-panel" id="lumiPanel">
+  <div class="lumi-head">
+    <div class="lumi-head-id">
+      <div class="lumi-avatar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M8.5 15.5c1-2 2.5-3 3.5-3s2.5 1 3.5 3M9 9.5h.01M15 9.5h.01"/></svg></div>
+      <div><b>Lumi</b><span>● Online</span></div>
+    </div>
+    <button class="modal-close" id="lumiClose" aria-label="Close">✕</button>
+  </div>
+  <div class="lumi-thread" id="lumiThread">
+    <div class="lumi-msg lumi-bot">Hi, I'm Lumi 👋 Ask me about credits, pricing, or which mode fits what you're making.</div>
+  </div>
+  <div class="lumi-suggestions">
+    <span class="lumi-suggestion">How do credits work?</span>
+    <span class="lumi-suggestion">What's an animated ad?</span>
+    <span class="lumi-suggestion">Compare plans</span>
+  </div>
+  <form class="lumi-form" id="lumiForm">
+    <input type="text" id="lumiInput" placeholder="Ask Lumi anything…" autocomplete="off">
+    <button type="submit" aria-label="Send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg></button>
+  </form>
+</div>
+
+<script src="assets/js/main.js"></script>
+</body>
+</html>

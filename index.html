@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Picbo.ai — AI Photos, Ad Creatives, Photoshoots &amp; Animated Ads</title>
+<meta name="description" content="Picbo.ai turns a single prompt or product photo into professional images, ready-to-post ad creatives, full product photoshoots, and 15-second animated ads. Free to start, no card required.">
+<meta property="og:title" content="Picbo.ai — AI Photos, Ad Creatives, Photoshoots & Animated Ads">
+<meta property="og:description" content="Studio-quality photos, ad creatives, product photoshoots and animated ads from one prompt. Powered by Gemini. Free to start.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%238b7cff'/%3E%3Cstop offset='1' stop-color='%2345d9c0'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='9' fill='url(%23g)'/%3E%3C/svg%3E">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  // Guarded: if the CDN is blocked (ad-blocker, offline, firewall), the page
+  // still works — it just falls back to the plain custom CSS design system.
+  if (window.tailwind) {
+    window.tailwind.config = {
+      corePlugins: { preflight: false },
+      theme: {
+        extend: {
+          colors: {
+            void: '#000000',
+            'void-soft': '#07070a',
+            panel: '#0b0b11',
+            'panel-2': '#101017',
+            ink: '#eaf6ff',
+            'ink-2': '#a9bbcb',
+            'ink-dim': '#768696',
+            'ink-faint': '#6c7f90',
+            violet: '#00e5ff',
+            'violet-deep': '#006c8a',
+            'violet-2': '#0080ff',
+            teal: '#39ff88',
+            rose: '#ff2e9a',
+            amber: '#ffb800'
+          },
+          fontFamily: {
+            display: ['Space Grotesk', 'sans-serif'],
+            accent: ['Instrument Serif', 'serif'],
+            ui: ['Instrument Sans', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          },
+          borderRadius: { s: '7px', m: '12px', l: '18px', xl: '26px' }
+        }
+      }
+    };
+  }
+</script>
+<link rel="stylesheet" href="assets/css/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Picbo.ai",
+  "applicationCategory": "DesignApplication",
+  "operatingSystem": "Web",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "description": "AI platform for generating professional images, logos, posters, product photos, reels and video from text prompts."
+}
+</script>
+</head>
+<body>
+<a href="#main-content" class="skip-link">Skip to main content</a>
+
+<div id="loader"><div class="loader-mark"></div><div class="loader-text">PICBO.AI</div></div>
+<div class="noise"></div>
+<div class="aurora-field"><span class="a1"></span><span class="a2"></span><span class="a3"></span></div>
+<div class="cursor-glow"></div>
+
+<!-- Announcement bar -->
+<div class="announce">
+  <div class="announce-track" aria-hidden="true">
+    <span>🚀&nbsp; New — AI video generation up to 10 minutes, 1080p</span>
+    <span>🎁&nbsp; 150 free tokens for every new account</span>
+    <span>✨&nbsp; Professional product photography in seconds</span>
+    <span>🎬&nbsp; AI reels up to 60 seconds, studio quality</span>
+    <span>🚀&nbsp; New — AI video generation up to 10 minutes, 1080p</span>
+    <span>🎁&nbsp; 150 free tokens for every new account</span>
+    <span>✨&nbsp; Professional product photography in seconds</span>
+    <span>🎬&nbsp; AI reels up to 60 seconds, studio quality</span>
+  </div>
+</div>
+
+<!-- Nav -->
+<header class="nav">
+  <div class="wrap nav-row">
+    <a href="index.html" class="logo"><span class="logo-mark"></span><span>Picbo<em>.ai</em></span></a>
+    <nav class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="#features">Features</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#gallery">Gallery</a>
+      <a href="#how">How it works</a>
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <div class="nav-actions">
+      <button class="theme-toggle" aria-label="Toggle theme">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.4M12 19.6V22M4.9 4.9l1.7 1.7M17.4 17.4l1.7 1.7M2 12h2.4M19.6 12H22M4.9 19.1l1.7-1.7M17.4 6.6l1.7-1.7"/></svg>
+      </button>
+      <a href="login.html" class="btn btn-line btn-sm">Login</a>
+      <a href="register.html" class="btn btn-primary btn-sm">Get started</a>
+    </div>
+    <button class="nav-burger" aria-label="Menu"><span></span><span></span><span></span></button>
+  </div>
+</header>
+
+<div class="mobile-menu">
+  <div class="mobile-panel">
+    <button class="mobile-close" aria-label="Close">✕</button>
+    <a href="index.html">Home</a>
+    <a href="#features">Features</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#gallery">Gallery</a>
+    <a href="#how">How it works</a>
+    <a href="#about">About</a>
+    <a href="#contact">Contact</a>
+    <a href="login.html">Login</a>
+    <a href="register.html" class="btn btn-primary btn-block">Get started free</a>
+  </div>
+</div>
+
+<!-- Hero -->
+<section class="hero" id="main-content">
+  <div class="wrap hero-grid">
+    <div class="hero-copy reveal">
+      <span class="badge dot">Studio-grade AI, one prompt away</span>
+      <h1>Turn a sentence into<br><em class="serif-it grad-text">professional</em> visuals.</h1>
+      <p class="lead">Picbo.ai generates photography, ad creatives, full product photoshoots and 15-second animated ads — with the polish of a creative studio, not a filter. Powered end-to-end by Gemini.</p>
+      <div class="hero-cta">
+        <a href="register.html" class="btn btn-primary btn-lg">Start free — 500 credits</a>
+        <a href="#gallery" class="btn btn-ghost btn-lg">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 4l14 8-14 8V4z"/></svg>
+          See it generate
+        </a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat"><b data-count="184000" data-suffix="+">0</b><span>Happy users</span></div>
+        <div class="stat"><b data-count="2600000" data-suffix="+">0</b><span>Assets generated</span></div>
+        <div class="stat"><b data-count="41000" data-suffix="+">0</b><span>Animated ads rendered</span></div>
+        <div class="stat"><b data-count="4.9" data-suffix="/5">0</b><span>Customer rating</span></div>
+      </div>
+    </div>
+
+    <div class="hero-visual reveal" style="transition-delay:.15s">
+      <div class="console glass hud">
+        <div class="console-top">
+          <div class="console-dots"><span></span><span></span><span></span></div>
+          <span class="console-label">picbo · generate</span>
+        </div>
+        <div class="console-input">
+          <span class="dot-pulse"></span>
+          <span data-typed></span><span class="cursor-blink"></span>
+        </div>
+        <div class="console-tags">
+          <span class="tag active">Product photo</span>
+          <span class="tag">1080p</span>
+          <span class="tag">Studio light</span>
+        </div>
+      </div>
+      <div class="thumb-stack thumb thumb-a glass" data-tilt>
+        <img src="https://picsum.photos/seed/picbo-perfume/360/440" alt="AI generated product photo of a perfume bottle">
+      </div>
+      <div class="thumb-stack thumb thumb-b glass" data-tilt>
+        <img src="https://picsum.photos/seed/picbo-portrait/300/380" alt="AI generated portrait photo">
+      </div>
+      <div class="thumb-stack thumb thumb-c glass" data-tilt>
+        <img src="https://picsum.photos/seed/picbo-logo/260/260" alt="AI generated logo design">
+      </div>
+      <div class="token-chip glass">
+        <div class="ring"><i></i></div>
+        <div><b>−40 credits</b><span>simple photo generated</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Trusted by -->
+<section class="trusted">
+  <div class="wrap">
+    <p>Trusted by creators &amp; teams at</p>
+    <div class="trusted-row">
+      <span>Northlane Studio</span>
+      <span>Aurex Media</span>
+      <span>Formcraft</span>
+      <span>Verdant Foods</span>
+      <span>Halcyon Agency</span>
+      <span>Kindred Goods</span>
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<section class="section" id="features">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">Built for real creative work</span>
+      <h2>Everything a studio does. <em>None of the wait.</em></h2>
+      <p>From a single product photo to a finished ad campaign — Picbo.ai covers the full production pipeline other tools split across five apps.</p>
+    </div>
+    <div class="feature-grid reveal-stagger">
+      <div class="glass glass-glow feature-card">
+        <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><rect x="3" y="4" width="18" height="15" rx="3"/><circle cx="8.5" cy="9.5" r="1.6"/><path d="M21 15l-5.5-5.5a2 2 0 0 0-2.8 0L3 19"/></svg></div>
+        <h3>Professional photography</h3>
+        <p>Portraits, fashion, food, architecture, jewelry, interiors — lit and composed like a studio shoot.</p>
+      </div>
+      <div class="glass glass-glow feature-card">
+        <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4L12 2z"/></svg></div>
+        <h3>Logos, posters &amp; banners</h3>
+        <p>Brand marks, event posters, social banners and packaging mockups, export-ready in minutes.</p>
+      </div>
+      <div class="glass glass-glow feature-card">
+        <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M4 7l8-4 8 4-8 4-8-4z"/><path d="M4 7v10l8 4 8-4V7"/><path d="M12 11v10"/></svg></div>
+        <h3>3D &amp; stylized renders</h3>
+        <p>Pixar-style, cartoon, cyberpunk, anime, hyper-realistic 3D — pick a style, keep the subject.</p>
+      </div>
+      <div class="glass glass-glow feature-card wide">
+        <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 15l5-5 4 4 4-4 5 5"/></svg></div>
+        <h3>Ad creatives, sized for every platform</h3>
+        <p>Instagram Feed, Story, Facebook Feed, and banner formats — with AI-written headlines, captions and CTAs, on brand every time.</p>
+      </div>
+      <div class="glass glass-glow feature-card">
+        <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M21 8V6a2 2 0 0 0-2-2h-2M3 8V6a2 2 0 0 1 2-2h2M21 16v2a2 2 0 0 1-2 2h-2M3 16v2a2 2 0 0 0 2 2h2"/><rect x="7" y="7" width="10" height="10" rx="2"/></svg></div>
+        <h3>Full product photoshoots</h3>
+        <p>Upload one product photo — get a complete set of angles, backgrounds and lighting styles that stay true to the original.</p>
+      </div>
+      <div class="glass glass-glow feature-card">
+        <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><rect x="7" y="3" width="10" height="14" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></div>
+        <h3>15-second animated ads</h3>
+        <p>Not generative video — Gemini-made photos assembled with pan, zoom and transitions into a fixed 15-second, 1080p MP4.</p>
+      </div>
+      <div class="glass glass-glow feature-card wide">
+        <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M8.5 15.5c1-2 2.5-3 3.5-3s2.5 1 3.5 3M9 9.5h.01M15 9.5h.01"/></svg></div>
+        <h3>Lumi, your AI assistant</h3>
+        <p>A built-in, Gemini-powered guide that coaches your prompts, recommends the right mode, and answers billing questions — free, on every plan.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- How it works -->
+<section class="section section-tight" id="how">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">Four steps, start to export</span>
+      <h2>From idea to <em>finished asset.</em></h2>
+    </div>
+    <div class="steps reveal-stagger">
+      <div class="glass step">
+        <div class="step-num">01</div>
+        <h3>Describe it</h3>
+        <p>Type a prompt, or upload a reference photo, video, or brand file.</p>
+      </div>
+      <div class="glass step">
+        <div class="step-num">02</div>
+        <h3>Pick a style</h3>
+        <p>Choose format, aspect ratio, and one of 60+ styles — from studio to cinematic.</p>
+      </div>
+      <div class="glass step">
+        <div class="step-num">03</div>
+        <h3>Generate</h3>
+        <p>Picbo renders in seconds for photos and ad creatives, minutes for photoshoots and animated ads.</p>
+      </div>
+      <div class="glass step">
+        <div class="step-num">04</div>
+        <h3>Export &amp; use</h3>
+        <p>Download in 1080p with a commercial license on paid plans.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AI Categories / Gallery -->
+<section class="section" id="gallery">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">One engine, every format</span>
+      <h2>Made for <em>every</em> kind of visual.</h2>
+      <p>Explore a slice of what Picbo.ai generates today — photos, ad creatives, photoshoots and animated ads, in dozens of professional styles.</p>
+    </div>
+
+    <div class="cat-tabs" data-tabgroup="#cat-panels">
+      <button class="tag active" data-tab="images">Photos</button>
+      <button class="tag" data-tab="ads">Ad Creatives</button>
+      <button class="tag" data-tab="photoshoot">Photoshoots</button>
+      <button class="tag" data-tab="animated">Animated Ads</button>
+    </div>
+
+    <div id="cat-panels">
+      <div class="cat-grid reveal-stagger" data-panel="images">
+        <div class="cat-card"><img src="https://picsum.photos/seed/cat-portrait/400/500" alt="Portrait photography style"><div class="cat-label"><b>Portrait</b><span>Studio &amp; editorial</span></div></div>
+        <div class="cat-card"><img src="https://picsum.photos/seed/cat-product/400/500" alt="Product photography style"><div class="cat-label"><b>Product photo</b><span>Commercial</span></div></div>
+        <div class="cat-card"><img src="https://picsum.photos/seed/cat-fashion/400/500" alt="Fashion photography style"><div class="cat-label"><b>Fashion</b><span>Editorial</span></div></div>
+        <div class="cat-card"><img src="https://picsum.photos/seed/cat-food/400/500" alt="Food photography style"><div class="cat-label"><b>Food photography</b><span>Magazine</span></div></div>
+        <div class="cat-card"><img src="https://picsum.photos/seed/cat-arch/400/500" alt="Architecture style"><div class="cat-label"><b>Architecture</b><span>Interior &amp; exterior</span></div></div>
+        <div class="cat-card"><img src="https://picsum.photos/seed/cat-logo/400/500" alt="Logo design style"><div class="cat-label"><b>Logo &amp; branding</b><span>Vector-ready</span></div></div>
+        <div class="cat-card"><img src="https://picsum.photos/seed/cat-3d/400/500" alt="3D render style"><div class="cat-label"><b>3D render</b><span>Pixar &amp; realistic</span></div></div>
+        <div class="cat-card"><img src="https://picsum.photos/seed/cat-poster/400/500" alt="Poster design style"><div class="cat-label"><b>Poster &amp; banner</b><span>Print-ready</span></div></div>
+      </div>
+      <div class="cat-grid reveal-stagger" data-panel="ads" style="display:none">
+        <div class="cat-card"><img src="https://picsum.photos/seed/ad-feed/400/500" alt="Instagram feed ad style"><div class="cat-label"><b>Instagram Feed</b><span>1:1</span></div></div>
+        <div class="cat-card"><img src="https://picsum.photos/seed/ad-story/400/500" alt="Instagram story ad style"><div class="cat-label"><b>Story ad</b><span>9:16</span></div></div>
+        <div class="cat-card"><img src="https://picsum.photos/seed/ad-facebook/400/500" alt="Facebook feed ad style"><div class="cat-label"><b>Facebook Feed</b><span>4:5</span></div></div>
+        <div class="cat-card"><img src="https://picsum.photos/seed/ad-banner/400/500" alt="Web banner ad style"><div class="cat-label"><b>Banner</b><span>16:9</span></div></div>
+      </div>
+      <div class="cat-grid reveal-stagger" data-panel="photoshoot" style="display:none">
+        <div class="cat-card"><img src="https://picsum.photos/seed/shoot-ecom/400/500" alt="E-commerce product photoshoot style"><div class="cat-label"><b>E-commerce</b><span>6-angle set</span></div></div>
+        <div class="cat-card"><img src="https://picsum.photos/seed/shoot-jewelry/400/500" alt="Jewelry photoshoot style"><div class="cat-label"><b>Jewelry</b><span>Macro &amp; studio</span></div></div>
+        <div class="cat-card"><img src="https://picsum.photos/seed/shoot-beauty/400/500" alt="Beauty product photoshoot style"><div class="cat-label"><b>Beauty &amp; cosmetics</b><span>6-angle set</span></div></div>
+        <div class="cat-card"><img src="https://picsum.photos/seed/shoot-tech/400/500" alt="Tech gadget photoshoot style"><div class="cat-label"><b>Tech &amp; gadgets</b><span>6-angle set</span></div></div>
+      </div>
+      <div class="cat-grid reveal-stagger" data-panel="animated" style="display:none">
+        <div class="cat-card"><img src="https://picsum.photos/seed/anim-lux/400/500" alt="Luxury animated ad style"><div class="cat-label"><b>Luxury</b><span>15 sec</span></div></div>
+        <div class="cat-card"><img src="https://picsum.photos/seed/anim-fashion/400/500" alt="Fashion animated ad style"><div class="cat-label"><b>Fashion</b><span>15 sec</span></div></div>
+        <div class="cat-card"><img src="https://picsum.photos/seed/anim-food/400/500" alt="Restaurant animated ad style"><div class="cat-label"><b>Restaurant</b><span>15 sec</span></div></div>
+        <div class="cat-card"><img src="https://picsum.photos/seed/anim-fitness/400/500" alt="Fitness animated ad style"><div class="cat-label"><b>Fitness</b><span>15 sec</span></div></div>
+      </div>
+    </div>
+    <div class="cat-more reveal"><a href="register.html" class="btn btn-ghost">Explore all styles</a></div>
+  </div>
+</section>
+
+<!-- Pricing -->
+<section class="section" id="pricing">
+  <div class="wrap">
+    <div class="section-head reveal" style="margin-left:auto;margin-right:auto;text-align:center;">
+      <span class="eyebrow justify-center w-full">Simple, credit-based pricing</span>
+      <h2 style="margin-top:14px">Pay for what you <em>create.</em></h2>
+      <p style="margin-left:auto;margin-right:auto">No hidden fees. Credits roll into every generation — photo, ad creative, photoshoot, or animated ad. 7-day Pro trial, no card required.</p>
+    </div>
+
+    <div class="pricing-toggle reveal">
+      <div class="currency-switch glass">
+        <button class="active" data-billing="monthly">Monthly</button>
+        <button data-billing="yearly">Yearly · save ~17%</button>
+      </div>
+    </div>
+
+    <div class="price-grid reveal-stagger">
+      <div class="glass price-card">
+        <span class="plan-name">Free</span>
+        <div class="plan-price"><b data-monthly="0" data-yearly="0">$0</b><span data-static-label="1">/forever</span></div>
+        <div class="plan-pkr">Free plan</div>
+        <div class="plan-tokens"><b>500</b>&nbsp;credits / month</div>
+        <ul class="plan-features">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg>Photo generation only</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg>Standard resolution, watermarked</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg>5 styles · Lumi assistant included</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg>Upgrade for ads, photoshoots &amp; animated ads</li>
+        </ul>
+        <a href="register.html" class="btn btn-line btn-block">Start free</a>
+      </div>
+
+      <div class="glass price-card">
+        <span class="plan-name">Starter</span>
+        <div class="plan-price"><b data-monthly="14" data-yearly="11.58">$14</b><span>/month</span></div>
+        <div class="plan-pkr" data-note-monthly="First month $12.60 with launch offer" data-note-yearly="$139 billed yearly">First month $12.60 with launch offer</div>
+        <div class="plan-tokens"><b>8,000</b>&nbsp;credits / month</div>
+        <ul class="plan-features">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg>Photos, ad creatives &amp; photoshoots</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg>HD resolution</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg>1 Brand Kit</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg>100+ styles · Email support</li>
+        </ul>
+        <button class="btn btn-ghost btn-block" data-open-pay data-plan="Starter" data-price-monthly="$14 / month" data-price-yearly="$139 / year">Subscribe</button>
+      </div>
+
+      <div class="glass price-card hi" data-tilt>
+        <span class="price-pop">Most popular</span>
+        <span class="plan-name">Pro</span>
+        <div class="plan-price"><b data-monthly="29" data-yearly="24.08">$29</b><span>/month</span></div>
+        <div class="plan-pkr" data-note-monthly="7-day free trial included" data-note-yearly="$289 billed yearly">7-day free trial included</div>
+        <div class="plan-tokens"><b>25,000</b>&nbsp;credits / month</div>
+        <ul class="plan-features">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg>Everything in Starter</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg>15-sec animated ads · 4K resolution</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg>Batch generation (A/B variations)</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg>5 Brand Kits · 3 team seats</li>
+        </ul>
+        <button class="btn btn-primary btn-block" data-open-pay data-plan="Pro" data-price-monthly="$29 / month" data-price-yearly="$289 / year">Start free trial</button>
+      </div>
+
+      <div class="glass price-card">
+        <span class="plan-name">Business</span>
+        <div class="plan-price"><b data-monthly="59" data-yearly="49.08">$59</b><span>/month</span></div>
+        <div class="plan-pkr" data-note-monthly="Pay-as-you-go overage available" data-note-yearly="$589 billed yearly">Pay-as-you-go overage available</div>
+        <div class="plan-tokens"><b>70,000</b>&nbsp;credits / month</div>
+        <ul class="plan-features">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg>Everything in Pro</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg>10 team seats · Unlimited Brand Kits</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg>API access &amp; webhooks</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg>Audit log · 24/7 priority support</li>
+        </ul>
+        <button class="btn btn-ghost btn-block" data-open-pay data-plan="Business" data-price-monthly="$59 / month" data-price-yearly="$589 / year">Subscribe</button>
+      </div>
+    </div>
+
+    <div class="glass reveal" style="margin-top:18px;padding:30px 32px;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;border-color:var(--glass-border-hi);">
+      <div>
+        <span class="badge dot mb-2.5">For agencies &amp; resellers</span>
+        <h3 style="font-family:var(--font-display);font-style:italic;font-size:21px;margin-top:4px;">Agency — white-label Picbo for your clients</h3>
+        <p style="color:var(--ink-dim);font-size:13.5px;margin-top:8px;max-width:480px;">200,000 credits/month, unlimited seats, client sub-accounts, no "Made with Picbo" branding, and a dedicated account manager.</p>
+      </div>
+      <div style="text-align:right;flex:none;">
+        <div class="plan-price" style="justify-content:flex-end"><b data-monthly="199" data-yearly="165.83">$199</b><span>/month</span></div>
+        <div class="plan-pkr" data-note-monthly="Custom credit pool available" data-note-yearly="$1,990 billed yearly" style="text-align:right">Custom credit pool available</div>
+        <button class="btn btn-primary" style="margin-top:10px" data-open-pay data-plan="Agency" data-price-monthly="$199 / month" data-price-yearly="$1,990 / year">Talk to sales</button>
+      </div>
+    </div>
+
+    <div class="glass token-costs reveal">
+      <h4><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="stroke:var(--amber)"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>How credits are spent</h4>
+      <div class="tc-grid">
+        <div class="tc-item"><b>40 credits</b><span>Simple photo</span></div>
+        <div class="tc-item"><b>80 credits</b><span>Complex / multi-element photo</span></div>
+        <div class="tc-item"><b>120 credits</b><span>Ad creative — single format</span></div>
+        <div class="tc-item"><b>300 credits</b><span>Ad creative bundle — 3 formats</span></div>
+        <div class="tc-item"><b>350 credits</b><span>Product photoshoot — 6-angle set</span></div>
+        <div class="tc-item"><b>500 credits</b><span>Animated ad — 15 sec, 1080p</span></div>
+        <div class="tc-item"><b>60 credits</b><span>AI edit — retouch, upscale, bg swap</span></div>
+        <div class="tc-item"><b>Free</b><span>Ask Lumi · export &amp; download</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Testimonials -->
+<section class="section section-tight">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">From the community</span>
+      <h2>Loved by creators <em>&amp; teams.</em></h2>
+    </div>
+    <div class="testi-row reveal-stagger">
+      <div class="glass testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <p>We replaced two freelancers and a stock subscription with Picbo. Our product shots go out same-day now.</p>
+        <div class="testi-person">
+          <div class="testi-avatar"><img src="https://picsum.photos/seed/testi-1/80/80" alt=""></div>
+          <div><b>Amara Osei</b><span>E-commerce founder</span></div>
+        </div>
+      </div>
+      <div class="glass testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <p>The reel styles are genuinely usable straight out of the export — no re-editing needed for Instagram.</p>
+        <div class="testi-person">
+          <div class="testi-avatar"><img src="https://picsum.photos/seed/testi-2/80/80" alt=""></div>
+          <div><b>Marcus Webb</b><span>Social media manager</span></div>
+        </div>
+      </div>
+      <div class="glass testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <p>The credit system is the fairest I've used — I know exactly what an animated ad will cost before I generate it.</p>
+        <div class="testi-person">
+          <div class="testi-avatar"><img src="https://picsum.photos/seed/testi-3/80/80" alt=""></div>
+          <div><b>Farah Zaidi</b><span>Brand designer</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="section" id="faq">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">Questions</span>
+      <h2>Frequently asked.</h2>
+    </div>
+    <div class="faq-list reveal">
+      <div class="faq-item open">
+        <div class="faq-q"><h4>How does the credit system work?</h4><span class="plus"></span></div>
+        <div class="faq-a"><div>Every generation costs a fixed number of credits based on what you're making — 40 for a simple photo up to 500 for a 15-second animated ad. Free accounts get 500 credits a month; paid plans get a much larger monthly pool, plus top-up packs if you need more.</div></div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q"><h4>Is the "animated ad" real AI video?</h4><span class="plus"></span></div>
+        <div class="faq-a"><div>No, and we want to be upfront about that. It's a 15-second, 1080p slideshow — Gemini-generated photos assembled with pan, zoom and transitions, plus optional captions and music. It's simpler, faster and cheaper than generative video, and it's exactly what most ad placements actually need.</div></div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q"><h4>How do I pay, and can I cancel anytime?</h4><span class="plus"></span></div>
+        <div class="faq-a"><div>Checkout runs through Paddle, so your card is billed securely with tax handled automatically wherever you are. Upgrade, downgrade or cancel anytime from Billing — changes are prorated.</div></div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q"><h4>Can I use generations commercially?</h4><span class="plus"></span></div>
+        <div class="faq-a"><div>Yes — all paid plans include a commercial license. Free-plan exports carry a watermark and are for personal use.</div></div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q"><h4>What if I run out of credits mid-month?</h4><span class="plus"></span></div>
+        <div class="faq-a"><div>Buy a top-up pack anytime, or on Business and Agency plans, turn on pay-as-you-go overage so you're never blocked mid-project. Ask Lumi for a recommendation based on your usage.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Founder -->
+<section class="section section-tight" id="founder">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">From the founder</span>
+      <h2>Built by <em>Techtig.</em></h2>
+    </div>
+    <div class="glass founder-card reveal">
+      <div class="founder-photo">
+        <img src="https://picsum.photos/seed/saad-ali-founder/700/800" alt="Saad Ali, Founder of Picbo.ai">
+      </div>
+      <div class="founder-body">
+        <span class="badge dot">Founder &amp; CEO</span>
+        <h3>Saad Ali</h3>
+        <p class="founder-role">Founder, Techtig · Creator of Picbo.ai</p>
+        <p>"I built Picbo.ai because every small business I worked with was paying a photographer, a designer, and an editor separately just to launch one campaign. Picbo puts photos, ad creatives, full photoshoots and animated ads behind a single prompt box — with the credit transparency I wanted as a client myself."</p>
+        <p>Under the Techtig brand, Saad has shipped AI products, automation systems and client platforms across Pakistan and beyond — Picbo.ai is Techtig's flagship consumer product.</p>
+        <div class="founder-sign">Saad Ali</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- About / Contact -->
+<section class="section" id="about">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">About Techtig</span>
+      <h2>The studio <em>behind</em> Picbo.ai.</h2>
+      <p>Techtig is a product &amp; AI engineering studio. Picbo.ai is our flagship platform, built and maintained end-to-end by the Techtig team.</p>
+    </div>
+    <div class="about-grid reveal-stagger">
+      <div class="glass about-card" id="contact">
+        <h4>Contact</h4>
+        <ul class="contact-list">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg><a href="mailto:Techtig9@gmail.com">Techtig9@gmail.com</a></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.7a2 2 0 0 1-.5 2.1L7.9 9.9a16 16 0 0 0 6 6l1.4-1.4a2 2 0 0 1 2.1-.5c.9.3 1.8.5 2.7.6a2 2 0 0 1 1.9 2.3z"/></svg><a href="tel:+92348597892">+92 348 597 892</a></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"/></svg><a href="https://instagram.com/techtig9" target="_blank" rel="noopener">@techtig9 on Instagram</a></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M17 3h-3a4 4 0 0 0-4 4v3H7v4h3v7h4v-7h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg><a href="https://facebook.com/techtig" target="_blank" rel="noopener">Techtig on Facebook</a></li>
+        </ul>
+      </div>
+      <div class="glass about-card">
+        <h4>What Techtig builds</h4>
+        <div class="service-pills">
+          <span class="tag">AI Development</span>
+          <span class="tag">Machine Learning</span>
+          <span class="tag">AI Agents</span>
+          <span class="tag">AI Chatbots</span>
+          <span class="tag">Web Development</span>
+          <span class="tag">App Development</span>
+          <span class="tag">UI/UX Design</span>
+          <span class="tag">Digital Marketing</span>
+          <span class="tag">Automation</span>
+          <span class="tag">Cloud Solutions</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-head reveal" style="margin-top:64px;margin-bottom:24px;">
+      <span class="eyebrow">Work with Techtig</span>
+      <h2 style="font-size:26px">Hire the team on freelance platforms.</h2>
+    </div>
+    <div class="freelance-row reveal-stagger">
+      <a href="https://www.fiverr.com/techtig" target="_blank" rel="noopener" class="glass glass-glow freelance-card">
+        <div class="freelance-icon">Fv</div>
+        <div><b>Fiverr</b><span>@techtig</span></div>
+      </a>
+      <a href="https://www.upwork.com/freelancers/techtig" target="_blank" rel="noopener" class="glass glass-glow freelance-card">
+        <div class="freelance-icon">Up</div>
+        <div><b>Upwork</b><span>@techtig</span></div>
+      </a>
+      <a href="https://www.freelancer.com/u/techtig" target="_blank" rel="noopener" class="glass glass-glow freelance-card">
+        <div class="freelance-icon">Fr</div>
+        <div><b>Freelancer</b><span>@techtig</span></div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Final CTA -->
+<section class="section-tight">
+  <div class="wrap">
+    <div class="glass reveal" style="padding:64px 48px;text-align:center;border-radius:32px;">
+      <h2 class="serif-it" style="font-size:clamp(26px,3.6vw,38px);font-style:italic;">Your next visual is one prompt away.</h2>
+      <p style="color:var(--ink-dim);margin-top:14px;max-width:440px;margin-left:auto;margin-right:auto;">Join for free and get 500 credits instantly — no card required.</p>
+      <a href="register.html" class="btn btn-primary btn-lg" style="margin-top:28px;">Create your free account</a>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="index.html" class="logo"><span class="logo-mark"></span><span>Picbo<em>.ai</em></span></a>
+        <p>AI photos, ad creatives, photoshoots and animated ads — from one prompt. A Techtig product.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Product</h5>
+        <ul><li><a href="#features">Features</a></li><li><a href="#pricing">Pricing</a></li><li><a href="#gallery">Gallery</a></li><li><a href="#how">How it works</a></li></ul>
+      </div>
+      <div class="footer-col">
+        <h5>Company</h5>
+        <ul><li><a href="#about">About</a></li><li><a href="#founder">Founder</a></li><li><a href="#contact">Contact</a></li><li><a href="help.html">Help center</a></li><li><a href="changelog.html">Changelog</a></li></ul>
+      </div>
+      <div class="footer-col">
+        <h5>Account</h5>
+        <ul><li><a href="login.html">Login</a></li><li><a href="register.html">Register</a></li><li><a href="dashboard.html">Dashboard</a></li><li><a href="billing.html">Billing</a></li><li><a href="referrals.html">Referrals</a></li></ul>
+      </div>
+      <div class="footer-col">
+        <h5>Legal</h5>
+        <ul><li><a href="legal.html#terms">Terms of Service</a></li><li><a href="legal.html#privacy">Privacy Policy</a></li><li><a href="legal.html#refund">Refund Policy</a></li><li><a href="legal.html#cookies">Cookie Policy</a></li></ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 Picbo.ai — a Techtig product. All rights reserved. · Built with Fiverr/Upwork/Freelancer "techtig"</p>
+      <div class="footer-social">
+        <a href="https://instagram.com/techtig9" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4.2"/></svg></a>
+        <a href="https://facebook.com/techtig" target="_blank" rel="noopener" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M17 3h-3a4 4 0 0 0-4 4v3H7v4h3v7h4v-7h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a>
+        <a href="mailto:Techtig9@gmail.com" aria-label="Email"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- Paddle Checkout Modal -->
+<div class="modal-overlay" id="payModal">
+  <div class="modal-box glass">
+    <div class="modal-head">
+      <h3>Checkout</h3>
+      <button class="modal-close" aria-label="Close">✕</button>
+    </div>
+    <p class="modal-sub"><span id="payPlanName">Pro</span> plan · <span id="payPlanPrice">$29 / month</span></p>
+
+    <div class="pay-detail">
+      <div class="pay-row"><span>Billing</span><b>Secured by Paddle</b></div>
+      <div class="pay-row"><span>Tax</span><b>Calculated automatically</b></div>
+      <div class="pay-row"><span>Cancel anytime</span><b>Prorated instantly</b></div>
+    </div>
+
+    <form id="payForm">
+      <div class="field">
+        <label>Email</label>
+        <input type="email" placeholder="you@email.com" required>
+      </div>
+      <div class="field">
+        <label>Card number</label>
+        <input type="text" placeholder="4242 4242 4242 4242" required>
+      </div>
+      <div class="flex gap-2.5">
+        <div class="field flex-1"><label>Expiry</label><input type="text" placeholder="MM / YY" required></div>
+        <div class="field flex-1"><label>CVC</label><input type="text" placeholder="123" required></div>
+      </div>
+      <div class="field">
+        <label>Coupon code (optional)</label>
+        <input type="text" placeholder="LAUNCH10">
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Confirm subscription</button>
+      <p style="text-align:center;font-size:11.5px;color:var(--ink-faint);margin-top:12px;">Payments are processed by Paddle.com, our Merchant of Record. This checkout is a preview — real card processing goes live when Paddle is connected on the backend.</p>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+  <p>Done</p>
+</div>
+
+<!-- Lumi AI Assistant -->
+<button class="lumi-bubble" id="lumiBubble" aria-label="Ask Lumi">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M8.5 15.5c1-2 2.5-3 3.5-3s2.5 1 3.5 3M9 9.5h.01M15 9.5h.01"/></svg>
+  <span class="lumi-dot"></span>
+</button>
+<div class="lumi-panel" id="lumiPanel">
+  <div class="lumi-head">
+    <div class="lumi-head-id">
+      <div class="lumi-avatar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M8.5 15.5c1-2 2.5-3 3.5-3s2.5 1 3.5 3M9 9.5h.01M15 9.5h.01"/></svg></div>
+      <div><b>Lumi</b><span>● Online</span></div>
+    </div>
+    <button class="modal-close" id="lumiClose" aria-label="Close">✕</button>
+  </div>
+  <div class="lumi-thread" id="lumiThread">
+    <div class="lumi-msg lumi-bot">Hi, I'm Lumi 👋 Ask me about credits, pricing, or which mode fits what you're making.</div>
+  </div>
+  <div class="lumi-suggestions">
+    <span class="lumi-suggestion">How do credits work?</span>
+    <span class="lumi-suggestion">What's an animated ad?</span>
+    <span class="lumi-suggestion">Compare plans</span>
+  </div>
+  <form class="lumi-form" id="lumiForm">
+    <input type="text" id="lumiInput" placeholder="Ask Lumi anything…" autocomplete="off">
+    <button type="submit" aria-label="Send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg></button>
+  </form>
+</div>
+
+<script src="assets/js/main.js"></script>
+</body>
+</html>

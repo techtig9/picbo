@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Billing — Picbo.ai</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%238b7cff'/%3E%3Cstop offset='1' stop-color='%2345d9c0'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='9' fill='url(%23g)'/%3E%3C/svg%3E">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  // Guarded: if the CDN is blocked (ad-blocker, offline, firewall), the page
+  // still works — it just falls back to the plain custom CSS design system.
+  if (window.tailwind) {
+    window.tailwind.config = {
+      corePlugins: { preflight: false },
+      theme: {
+        extend: {
+          colors: {
+            void: '#000000',
+            'void-soft': '#07070a',
+            panel: '#0b0b11',
+            'panel-2': '#101017',
+            ink: '#eaf6ff',
+            'ink-2': '#a9bbcb',
+            'ink-dim': '#768696',
+            'ink-faint': '#6c7f90',
+            violet: '#00e5ff',
+            'violet-deep': '#006c8a',
+            'violet-2': '#0080ff',
+            teal: '#39ff88',
+            rose: '#ff2e9a',
+            amber: '#ffb800'
+          },
+          fontFamily: {
+            display: ['Space Grotesk', 'sans-serif'],
+            accent: ['Instrument Serif', 'serif'],
+            ui: ['Instrument Sans', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          },
+          borderRadius: { s: '7px', m: '12px', l: '18px', xl: '26px' }
+        }
+      }
+    };
+  }
+</script>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<a href="#main-content" class="skip-link">Skip to main content</a>
+
+<div id="loader"><div class="loader-mark"></div><div class="loader-text">PICBO.AI</div></div>
+<div class="noise"></div>
+<div class="aurora-field"><span class="a1"></span><span class="a2"></span><span class="a3"></span></div>
+
+<div class="app-shell">
+
+  <aside class="side">
+    <a href="index.html" class="logo"><span class="logo-mark"></span><span>Picbo<em>.ai</em></span></a>
+
+    <nav class="side-nav">
+      <div class="side-group">Workspace</div>
+      <a class="side-link" href="dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="7" height="9" rx="2"/><rect x="14" y="3" width="7" height="5" rx="2"/><rect x="14" y="12" width="7" height="9" rx="2"/><rect x="3" y="16" width="7" height="5" rx="2"/></svg>Create</a>
+      <a class="side-link" href="explore.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M16.24 7.76l-2.12 6.36-6.36 2.12 2.12-6.36z"/></svg>Explore</a>
+      <a class="side-link" href="library.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 21V9M16 21V13"/></svg>Recent creations</a>
+      <a class="side-link" href="library.html#history"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Prompt history</a>
+      <a class="side-link" href="library.html#collections"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>Collections</a>
+
+      <div class="side-group">Account</div>
+      <a class="side-link" href="notifications.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 22s8-4.5 8-11V5l-8-3-8 3v6c0 6.5 8 11 8 11z"/></svg>Notifications</a>
+      <a class="side-link" href="settings.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4.5 5-6 8-6s6.5 1.5 8 6"/></svg>Profile</a>
+      <a class="side-link" href="team.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="8" r="3.4"/><path d="M2 20c1-3.6 3.8-5.6 7-5.6s6 2 7 5.6"/><path d="M16 9a3 3 0 1 0 0-6"/><path d="M17.5 14.5c2.6.5 4 2.3 4.6 5.5"/></svg>Team</a>
+      <a class="side-link" href="referrals.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4L12 2z"/></svg>Referrals</a>
+      <a class="side-link active" href="billing.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20"/></svg>Subscription &amp; billing</a>
+      <a class="side-link" href="admin.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 2l8 4v6c0 5-3.4 8.4-8 10-4.6-1.6-8-5-8-10V6z"/></svg>Admin panel</a>
+      <a class="side-link" href="help.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.9.4-1.5 1-1.5 2"/><circle cx="12" cy="17" r=".4" fill="currentColor"/></svg>Help center</a>
+    </nav>
+
+    <div class="glass side-token">
+      <div class="flex justify-between items-center">
+        <span class="text-xs text-ink-dim">Credits</span>
+        <span class="font-mono text-xs text-amber">16,420 / 25,000</span>
+      </div>
+      <div class="bar"><i></i></div>
+      <a href="#plans" class="btn btn-primary btn-sm btn-block">Change plan</a>
+    </div>
+  </aside>
+
+  <main class="main" id="main-content">
+    <div class="top-row">
+      <div><h1 class="page-title">Subscription &amp; <em class="serif-it">billing.</em></h1></div>
+      <div class="top-actions">
+        <span class="badge dot">Pro plan</span>
+        <div class="avatar"><img src="https://picsum.photos/seed/user-avatar/80/80" alt="Your profile photo"></div>
+      </div>
+    </div>
+
+    <div class="glass reveal p-7 mb-6">
+      <div class="top-row" style="margin-bottom:14px">
+        <div>
+          <span class="badge dot">Current plan</span>
+          <h3 style="font-family:var(--font-display);font-style:italic;font-size:22px;margin-top:10px;">Pro — $29/month</h3>
+          <p style="color:var(--ink-dim);font-size:13px;margin-top:4px;">Renews Aug 24, 2026 · billed monthly via Paddle</p>
+        </div>
+        <div class="flex gap-2.5">
+          <button class="btn btn-line btn-sm" onclick="picboToast('Downgrade scheduled for renewal')">Downgrade</button>
+          <button class="btn btn-primary btn-sm" onclick="picboToast('Cancellation scheduled — access continues until renewal')">Cancel plan</button>
+        </div>
+      </div>
+      <span class="text-[12.5px] text-ink-dim">16,420 of 25,000 credits used this cycle</span>
+      <div class="usage-bar"><i style="width:34%"></i></div>
+      <label class="check-row" style="margin-top:16px;">
+        <input type="checkbox"> Enable pay-as-you-go overage at $1.20 / 1,000 credits once my monthly pool runs out <span class="badge" style="margin-left:6px;font-size:10.5px;">Business+</span>
+      </label>
+    </div>
+
+    <div class="glass reveal p-7 mb-6" id="topups">
+      <h3 class="font-accent italic text-[19px] mb-1.5">Credit top-ups</h3>
+      <p style="color:var(--ink-dim);font-size:13px;margin-bottom:20px;">Need more before your next reset? Buy a pack anytime — no subscription change required.</p>
+      <div class="topup-grid">
+        <div class="glass topup-card">
+          <b>2,000</b><span>$8 · $4.00 / 1,000</span>
+          <button class="btn btn-line btn-block" data-buy-topup="2,000">Buy</button>
+        </div>
+        <div class="glass topup-card" style="border-color:var(--glass-border-hi)">
+          <b>10,000</b><span>$32 · $3.20 / 1,000</span>
+          <button class="btn btn-primary btn-block" data-buy-topup="10,000">Buy</button>
+        </div>
+        <div class="glass topup-card">
+          <b>50,000</b><span>$140 · $2.80 / 1,000</span>
+          <button class="btn btn-line btn-block" data-buy-topup="50,000">Buy</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="glass reveal p-7 mb-6" id="plans">
+      <h3 style="font-family:var(--font-display);font-style:italic;font-size:19px;margin-bottom:18px;">Change plan</h3>
+      <div class="price-grid">
+        <div class="glass price-card">
+          <span class="plan-name">Starter</span>
+          <div class="plan-price"><b>$14</b><span>/month</span></div>
+          <div class="plan-tokens"><b>8,000</b>&nbsp;credits / month</div>
+          <button class="btn btn-line btn-block" onclick="picboToast('Switched to Starter')">Switch</button>
+        </div>
+        <div class="glass price-card hi">
+          <span class="price-pop">Current plan</span>
+          <span class="plan-name">Pro</span>
+          <div class="plan-price"><b>$29</b><span>/month</span></div>
+          <div class="plan-tokens"><b>25,000</b>&nbsp;credits / month</div>
+          <button class="btn btn-line btn-block" disabled>Active</button>
+        </div>
+        <div class="glass price-card">
+          <span class="plan-name">Business</span>
+          <div class="plan-price"><b>$59</b><span>/month</span></div>
+          <div class="plan-tokens"><b>70,000</b>&nbsp;credits / month</div>
+          <button class="btn btn-primary btn-block" onclick="picboToast('Switched to Business')">Upgrade</button>
+        </div>
+        <div class="glass price-card">
+          <span class="plan-name">Agency</span>
+          <div class="plan-price"><b>$199</b><span>/month</span></div>
+          <div class="plan-tokens"><b>200,000</b>&nbsp;credits / month</div>
+          <button class="btn btn-line btn-block" onclick="picboToast('Our team will reach out')">Talk to sales</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="glass reveal p-7">
+      <h3 class="font-accent italic text-[19px] mb-1.5">Invoice history</h3>
+      <p style="color:var(--ink-dim);font-size:13px;margin-bottom:18px;">Payments are processed and receipted by Paddle, our Merchant of Record.</p>
+      <table class="table">
+        <thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Status</th><th>Receipt</th></tr></thead>
+        <tbody>
+          <tr><td>Jul 24, 2026</td><td>Pro — monthly renewal</td><td>$29.00</td><td><span class="status-pill ok">Paid</span></td><td><a href="#" class="text-violet font-semibold">Download</a></td></tr>
+          <tr><td>Jul 10, 2026</td><td>Credit top-up · 10,000</td><td>$32.00</td><td><span class="status-pill ok">Paid</span></td><td><a href="#" class="text-violet font-semibold">Download</a></td></tr>
+          <tr><td>Jun 24, 2026</td><td>Pro — monthly renewal</td><td>$24.65</td><td><span class="status-pill ok">Paid</span></td><td><a href="#" class="text-violet font-semibold">Download</a></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+  <p>Done</p>
+</div>
+
+<!-- Lumi AI Assistant -->
+<button class="lumi-bubble" id="lumiBubble" aria-label="Ask Lumi">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M8.5 15.5c1-2 2.5-3 3.5-3s2.5 1 3.5 3M9 9.5h.01M15 9.5h.01"/></svg>
+  <span class="lumi-dot"></span>
+</button>
+<div class="lumi-panel" id="lumiPanel">
+  <div class="lumi-head">
+    <div class="lumi-head-id">
+      <div class="lumi-avatar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M8.5 15.5c1-2 2.5-3 3.5-3s2.5 1 3.5 3M9 9.5h.01M15 9.5h.01"/></svg></div>
+      <div><b>Lumi</b><span>● Online</span></div>
+    </div>
+    <button class="modal-close" id="lumiClose" aria-label="Close">✕</button>
+  </div>
+  <div class="lumi-thread" id="lumiThread">
+    <div class="lumi-msg lumi-bot">Hi, I'm Lumi 👋 Ask me about credits, pricing, or which mode fits what you're making.</div>
+  </div>
+  <div class="lumi-suggestions">
+    <span class="lumi-suggestion">How do credits work?</span>
+    <span class="lumi-suggestion">What's an animated ad?</span>
+    <span class="lumi-suggestion">Compare plans</span>
+  </div>
+  <form class="lumi-form" id="lumiForm">
+    <input type="text" id="lumiInput" placeholder="Ask Lumi anything…" autocomplete="off">
+    <button type="submit" aria-label="Send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg></button>
+  </form>
+</div>
+
+<script src="assets/js/main.js"></script>
+</body>
+</html>

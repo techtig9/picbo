@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Help Center — Picbo.ai</title>
+<meta name="description" content="Learn how Picbo.ai works — image and video generation, tokens, pricing, and troubleshooting.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%238b7cff'/%3E%3Cstop offset='1' stop-color='%2345d9c0'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='9' fill='url(%23g)'/%3E%3C/svg%3E">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  // Guarded: if the CDN is blocked (ad-blocker, offline, firewall), the page
+  // still works — it just falls back to the plain custom CSS design system.
+  if (window.tailwind) {
+    window.tailwind.config = {
+      corePlugins: { preflight: false },
+      theme: {
+        extend: {
+          colors: {
+            void: '#000000',
+            'void-soft': '#07070a',
+            panel: '#0b0b11',
+            'panel-2': '#101017',
+            ink: '#eaf6ff',
+            'ink-2': '#a9bbcb',
+            'ink-dim': '#768696',
+            'ink-faint': '#6c7f90',
+            violet: '#00e5ff',
+            'violet-deep': '#006c8a',
+            'violet-2': '#0080ff',
+            teal: '#39ff88',
+            rose: '#ff2e9a',
+            amber: '#ffb800'
+          },
+          fontFamily: {
+            display: ['Space Grotesk', 'sans-serif'],
+            accent: ['Instrument Serif', 'serif'],
+            ui: ['Instrument Sans', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          },
+          borderRadius: { s: '7px', m: '12px', l: '18px', xl: '26px' }
+        }
+      }
+    };
+  }
+</script>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<a href="#main-content" class="skip-link">Skip to main content</a>
+
+<div id="loader"><div class="loader-mark"></div><div class="loader-text">PICBO.AI</div></div>
+<div class="noise"></div>
+<div class="aurora-field"><span class="a1"></span><span class="a2"></span><span class="a3"></span></div>
+<div class="cursor-glow"></div>
+
+<header class="nav">
+  <div class="wrap nav-row">
+    <a href="index.html" class="logo"><span class="logo-mark"></span><span>Picbo<em>.ai</em></span></a>
+    <nav class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="index.html#features">Features</a>
+      <a href="index.html#pricing">Pricing</a>
+      <a href="help.html">Help center</a>
+      <a href="index.html#about">About</a>
+      <a href="index.html#contact">Contact</a>
+    </nav>
+    <div class="nav-actions">
+      <button class="theme-toggle" aria-label="Toggle theme">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.4M12 19.6V22M4.9 4.9l1.7 1.7M17.4 17.4l1.7 1.7M2 12h2.4M19.6 12H22M4.9 19.1l1.7-1.7M17.4 6.6l1.7-1.7"/></svg>
+      </button>
+      <a href="login.html" class="btn btn-line btn-sm">Login</a>
+      <a href="register.html" class="btn btn-primary btn-sm">Get started</a>
+    </div>
+    <button class="nav-burger" aria-label="Menu"><span></span><span></span><span></span></button>
+  </div>
+</header>
+
+<div class="mobile-menu">
+  <div class="mobile-panel">
+    <button class="mobile-close" aria-label="Close">✕</button>
+    <a href="index.html">Home</a>
+    <a href="index.html#features">Features</a>
+    <a href="index.html#pricing">Pricing</a>
+    <a href="help.html">Help center</a>
+    <a href="index.html#about">About</a>
+    <a href="login.html">Login</a>
+    <a href="register.html" class="btn btn-primary btn-block">Get started free</a>
+  </div>
+</div>
+
+<section class="section" id="main-content" class="pt-[70px]">
+  <div class="wrap" style="text-align:center;max-width:720px;margin:0 auto;">
+    <span class="eyebrow justify-center w-full">Help center</span>
+    <h1 class="serif-it" style="font-size:clamp(30px,4.4vw,46px);margin-top:14px;">How can we help?</h1>
+    <p style="color:var(--ink-dim);margin-top:14px;">Guides, tutorials and answers for everything in Picbo.ai.</p>
+  </div>
+
+  <div class="wrap" style="margin-top:40px">
+    <div class="help-search glass">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input type="text" placeholder="Search for an answer — e.g. 'how do credits work'">
+    </div>
+
+    <div class="glass glass-glow reveal" style="padding:20px 24px;margin-bottom:32px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+      <div style="display:flex;align-items:center;gap:14px;">
+        <div class="lumi-avatar" style="width:38px;height:38px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M8.5 15.5c1-2 2.5-3 3.5-3s2.5 1 3.5 3M9 9.5h.01M15 9.5h.01"/></svg></div>
+        <div><b class="text-sm block">Faster than searching — ask Lumi</b><span class="text-[12.5px] text-ink-dim">Our AI assistant answers most questions instantly, from anywhere in the app.</span></div>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="document.getElementById('lumiBubble').click()">Ask Lumi</button>
+    </div>
+
+    <div class="help-grid reveal-stagger">
+      <div class="glass glass-glow help-card">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M13 2L3 14h7l-1 8 10-12h-7z"/></svg>
+        <h4>How Picbo.ai works</h4>
+        <p>A quick overview of the generation engine, formats, and what makes an output "professional".</p>
+      </div>
+      <div class="glass glass-glow help-card">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><rect x="3" y="4" width="18" height="15" rx="3"/><circle cx="8.5" cy="9.5" r="1.6"/><path d="M21 15l-5.5-5.5a2 2 0 0 0-2.8 0L3 19"/></svg>
+        <h4>Generating AI images</h4>
+        <p>Prompting tips, style selection, aspect ratios, and getting consistent results.</p>
+      </div>
+      <div class="glass glass-glow help-card">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M5 4v16l14-8L5 4z"/></svg>
+        <h4>Ad creatives &amp; animated ads</h4>
+        <p>Platform sizing, AI-written copy, and how the 15-second animated ad differs from generative video.</p>
+      </div>
+      <div class="glass glass-glow help-card">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+        <h4>How credits work</h4>
+        <p>What each format costs, when free credits refresh, and how monthly pools and top-ups carry over.</p>
+      </div>
+      <div class="glass glass-glow help-card">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20"/></svg>
+        <h4>Pricing &amp; billing</h4>
+        <p>Plan comparisons, how Paddle checkout works, and managing upgrades, downgrades and invoices.</p>
+      </div>
+      <div class="glass glass-glow help-card">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M12 9v4M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg>
+        <h4>Troubleshooting</h4>
+        <p>Generation stuck, failed exports, missing credits, and how to reach support fast.</p>
+      </div>
+      <div class="glass glass-glow help-card">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M13 2L3 14h7l-1 8 10-12h-7z"/></svg>
+        <h4>FAQs</h4>
+        <p>Answers to the questions we hear most from new and returning users.</p>
+      </div>
+      <div class="glass glass-glow help-card">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+        <h4>Contact support</h4>
+        <p>Reach the Techtig team directly at <a href="mailto:Techtig9@gmail.com" style="color:var(--violet)">Techtig9@gmail.com</a>.</p>
+      </div>
+      <div class="glass glass-glow help-card">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M5 4l14 8-14 8V4z"/></svg>
+        <h4>Video tutorials</h4>
+        <p>Step-by-step walkthroughs for photo, ad creative, photoshoot and animated ad workflows.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section-tight">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">Popular questions</span>
+      <h2>Quick answers.</h2>
+    </div>
+    <div class="faq-list reveal">
+      <div class="faq-item open">
+        <div class="faq-q"><h4>Why did my generation use more credits than expected?</h4><span class="plus"></span></div>
+        <div class="faq-a"><div>Cost depends on what you're making — a "simple" photo (single subject, no complex scene) is 40 credits, while multi-element or edited photos are 80. Ad creatives, photoshoots and animated ads scale up from there, up to 500 for a 15-second animated ad.</div></div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q"><h4>How does billing work?</h4><span class="plus"></span></div>
+        <div class="faq-a"><div>Checkout is handled by Paddle, our Merchant of Record — your card is charged securely and tax is calculated automatically. You'll get an email receipt the moment your plan activates.</div></div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q"><h4>My free credits haven't refreshed yet</h4><span class="plus"></span></div>
+        <div class="faq-a"><div>Free-plan credits refresh monthly. If it's been longer than a month since your last reset, log out and back in, or contact support.</div></div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q"><h4>Can I get a refund?</h4><span class="plus"></span></div>
+        <div class="faq-a"><div>Reach out to Techtig9@gmail.com within 7 days of payment with your transaction ID — refund requests are reviewed case by case.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer-bottom border-t-0 pt-0">
+      <p>© 2026 Picbo.ai — a Techtig product. All rights reserved.</p>
+      <div class="footer-social">
+        <a href="https://instagram.com/techtig9" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4.2"/></svg></a>
+        <a href="mailto:Techtig9@gmail.com" aria-label="Email"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- Lumi AI Assistant -->
+<button class="lumi-bubble" id="lumiBubble" aria-label="Ask Lumi">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M8.5 15.5c1-2 2.5-3 3.5-3s2.5 1 3.5 3M9 9.5h.01M15 9.5h.01"/></svg>
+  <span class="lumi-dot"></span>
+</button>
+<div class="lumi-panel" id="lumiPanel">
+  <div class="lumi-head">
+    <div class="lumi-head-id">
+      <div class="lumi-avatar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M8.5 15.5c1-2 2.5-3 3.5-3s2.5 1 3.5 3M9 9.5h.01M15 9.5h.01"/></svg></div>
+      <div><b>Lumi</b><span>● Online</span></div>
+    </div>
+    <button class="modal-close" id="lumiClose" aria-label="Close">✕</button>
+  </div>
+  <div class="lumi-thread" id="lumiThread">
+    <div class="lumi-msg lumi-bot">Hi, I'm Lumi 👋 Ask me about credits, pricing, or which mode fits what you're making.</div>
+  </div>
+  <div class="lumi-suggestions">
+    <span class="lumi-suggestion">How do credits work?</span>
+    <span class="lumi-suggestion">What's an animated ad?</span>
+    <span class="lumi-suggestion">Compare plans</span>
+  </div>
+  <form class="lumi-form" id="lumiForm">
+    <input type="text" id="lumiInput" placeholder="Ask Lumi anything…" autocomplete="off">
+    <button type="submit" aria-label="Send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg></button>
+  </form>
+</div>
+
+<script src="assets/js/main.js"></script>
+</body>
+</html>

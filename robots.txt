@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard.html
+Disallow: /library.html
+Disallow: /notifications.html
+Disallow: /settings.html
+Disallow: /billing.html
+Disallow: /referrals.html
+Disallow: /team.html
+Disallow: /admin.html
+
+Sitemap: https://picbo.ai/sitemap.xml
