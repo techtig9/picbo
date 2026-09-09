@@ -15,7 +15,7 @@ export default async function Billing({searchParams}:{searchParams:Promise<{peri
   const provider=getPaymentProvider();
 
   const [{data:subscription},{data:credits},{data:payments}]=await Promise.all([
-    supabase.from("subscriptions").select("plan,billing_period,status,current_period_end,cancel_at_period_end").eq("workspace_id",ws!.workspace_id).maybeSingle(),
+    supabase.from("subscriptions").select("plan,billing_period,status,current_period_end,cancel_at_period_end,cancellation_requested_at,provider_canceled_at").eq("workspace_id",ws!.workspace_id).maybeSingle(),
     supabase.from("workspace_credits").select("balance,lifetime_used,monthly_limit").eq("workspace_id",ws!.workspace_id).maybeSingle(),
     supabase.from("payment_events").select("id,type,amount_cents,currency,status,created_at").eq("workspace_id",ws!.workspace_id).order("created_at",{ascending:false}).limit(10)
   ]);
@@ -37,7 +37,13 @@ export default async function Billing({searchParams}:{searchParams:Promise<{peri
         <span className="muted">Current plan</span>
         <div className="metric" style={{textTransform:"capitalize"}}>{currentPlan}</div>
         {subscription?.status&&<span className="status">{subscription.status}</span>}
-        {subscription?.cancel_at_period_end&&<p className="muted" style={{marginTop:8}}>Cancels at end of billing period.</p>}
+        {subscription?.cancel_at_period_end&&
+          <p className="muted" style={{marginTop:8}}>
+            {subscription?.provider_canceled_at
+              ? "Cancels at end of billing period."
+              : "Cancellation requested — confirming with the payment provider. You may still be billed until this is confirmed."}
+          </p>
+        }
       </div>
       <div className="card">
         <span className="muted">Credit balance</span>
@@ -53,7 +59,10 @@ export default async function Billing({searchParams}:{searchParams:Promise<{peri
         <span className="muted">Manage</span>
         {currentPlan!=="free"&&!subscription?.cancel_at_period_end&&
           <form action={cancelSubscription} style={{marginTop:10}}>
-            <button className="btn">Cancel subscription</button>
+            <button className="btn">Request cancellation</button>
+            <p className="muted" style={{marginTop:8}}>
+              We&apos;ll record your request and confirm it with the payment provider.
+            </p>
           </form>
         }
         {currentPlan==="free"&&<p className="muted">You're on the Free plan — upgrade below anytime.</p>}
