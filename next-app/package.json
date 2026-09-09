@@ -8,7 +8,9 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "test": "node --import tsx --test tests/**/*.test.ts",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:smoke": "node scripts/smoke-test.mjs",
+    "audit:production": "node scripts/production-audit.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.7.0",

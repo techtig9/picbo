@@ -1,0 +1,199 @@
+#!/usr/bin/env node
+/**
+ * HTTP smoke tests against a running Picbo server.
+ *
+ * These assert the behaviours that static analysis cannot see and that unit
+ * tests cannot reach — every case below is a measured production failure from
+ * the Phase 0 audit, where a route returned 307 to /auth/sign-in instead of
+ * doing its job.
+ *
+ * Usage:
+ *   npm run build && npx next start -p 3111 &
+ *   BASE_URL=http://127.0.0.1:3111 node scripts/smoke-test.mjs
+ *
+ * Runs unauthenticated on purpose: that is the state a webhook, a render
+ * worker, a health probe and a crawler all arrive in.
+ */
+
+const BASE=process.env.BASE_URL||"http://127.0.0.1:3111";
+const results=[];
+
+async function probe(method,path,init={}){
+  const res=await fetch(`${BASE}${path}`,{method,redirect:"manual",...init});
+  const location=res.headers.get("location");
+  let body="";
+  try{body=(await res.text()).slice(0,20000)}catch{}
+  return {status:res.status,location,body,contentType:res.headers.get("content-type")||""};
+}
+
+function expect(name,condition,detail){
+  results.push({name,ok:Boolean(condition),detail});
+}
+
+const redirectsToSignIn=r=>(r.status===307||r.status===302||r.status===303)&&(r.location||"").includes("/auth/sign-in");
+
+async function run(){
+  // ── RED-02: machine endpoints must reach their handler ────────────────────
+
+  {
+    const r=await probe("POST","/api/billing/webhook",{
+      headers:{"content-type":"application/json","paddle-signature":"ts=1;h1=deadbeef"},
+      body:JSON.stringify({event_id:"evt_smoke"})
+    });
+    expect("Paddle webhook reaches its handler",
+      !redirectsToSignIn(r),
+      `got ${r.status}${r.location?` -> ${r.location}`:""}; a 307 to sign-in means no subscription can ever activate`);
+    expect("Paddle webhook rejects a bad signature",
+      [401,503].includes(r.status),
+      `expected 401 (bad signature) or 503 (provider not configured), got ${r.status}`);
+  }
+
+  for(const path of ["/api/render-worker/complete","/api/render-worker/fail"]){
+    const r=await probe("POST",path,{headers:{"content-type":"application/json"},body:"{}"});
+    expect(`${path} reaches its handler`,
+      !redirectsToSignIn(r),
+      `got ${r.status}${r.location?` -> ${r.location}`:""}`);
+    expect(`${path} rejects a missing worker secret with 401`,
+      r.status===401,
+      `expected 401, got ${r.status}`);
+  }
+
+  {
+    const r=await probe("GET","/api/health");
+    expect("Liveness probe answers unauthenticated",r.status===200,`expected 200, got ${r.status}`);
+    expect("Liveness probe returns JSON",r.contentType.includes("json"),`content-type was ${r.contentType}`);
+  }
+
+  {
+    const r=await probe("GET","/api/v1/products");
+    expect("Developer API reaches its handler",!redirectsToSignIn(r),`got ${r.status}${r.location?` -> ${r.location}`:""}`);
+    expect("Developer API rejects a missing bearer key with 401",r.status===401,`expected 401, got ${r.status}`);
+  }
+
+  // ── RED-02: crawler files must not redirect ───────────────────────────────
+
+  {
+    const r=await probe("GET","/robots.txt");
+    expect("robots.txt is served, not redirected",r.status===200,`got ${r.status}${r.location?` -> ${r.location}`:""}`);
+    expect("robots.txt advertises a sitemap",/Sitemap:/i.test(r.body),"no Sitemap: line");
+    expect("robots.txt is not self-contradictory",
+      !(/^Allow: \/$/m.test(r.body)&&/^Disallow: \/$/m.test(r.body)),
+      "emits both Allow: / and Disallow: / — most crawlers block the whole site");
+  }
+
+  {
+    const r=await probe("GET","/sitemap.xml");
+    expect("sitemap.xml is served",r.status===200,`got ${r.status}`);
+    expect("sitemap.xml contains the landing page",r.body.includes("<loc>"),"no <loc> entries");
+  }
+
+  // ── RED-02: app API routes answer 401 JSON, not an HTML redirect ──────────
+
+  {
+    const r=await probe("POST","/api/ai/generate",{
+      headers:{"content-type":"application/json"},
+      body:JSON.stringify({task:"image",prompt:"x"})
+    });
+    expect("Unauthenticated app API returns 401, not a redirect",
+      r.status===401,
+      `got ${r.status}${r.location?` -> ${r.location}`:""}`);
+    expect("Unauthenticated app API returns JSON",
+      r.contentType.includes("json"),
+      `content-type was ${r.contentType} — an SDK would try to parse HTML`);
+  }
+
+  // ── RED-03: the Google white-page bug ─────────────────────────────────────
+
+  {
+    const r=await probe("GET","/auth/callback?code=invalid-smoke-code");
+    expect("OAuth callback route exists (was 404 — the white page)",
+      r.status!==404,
+      `got ${r.status}; Google returns users here and a 404 renders as a blank screen`);
+    expect("A failed code exchange redirects to a readable error page",
+      (r.location||"").includes("/auth/auth-error"),
+      `expected a redirect to /auth/auth-error, got ${r.status} -> ${r.location||"(no location)"}`);
+  }
+
+  {
+    const r=await probe("GET","/auth/callback");
+    expect("Callback with no code shows an error, never a blank page",
+      (r.location||"").includes("/auth/auth-error"),
+      `got ${r.status} -> ${r.location||"(no location)"}`);
+  }
+
+  {
+    const r=await probe("GET","/auth/callback?error=access_denied&error_description=User%20denied");
+    expect("A cancelled Google consent screen is explained to the user",
+      (r.location||"").includes("reason=cancelled"),
+      `got ${r.status} -> ${r.location||"(no location)"}`);
+  }
+
+  {
+    const r=await probe("GET","/auth/auth-error?reason=exchange_failed");
+    expect("The auth error page renders real content",
+      r.status===200&&r.body.length>200,
+      `status ${r.status}, body ${r.body.length} bytes — an almost-empty body IS the white page`);
+  }
+
+  // ── RED-03: open-redirect defence on the callback ─────────────────────────
+
+  {
+    const r=await probe("GET","/auth/callback?code=x&next=%2F%2Fevil.example");
+    const target=r.location||"";
+    expect("Callback never redirects off-site",
+      !target.includes("evil.example"),
+      `redirect target was ${target}`);
+  }
+
+  // ── RED-03/15: the auth pages a user actually needs ───────────────────────
+
+  for(const [path,label] of [
+    ["/auth/sign-in","Sign-in page"],
+    ["/auth/sign-up","Sign-up page"],
+    ["/auth/forgot-password","Password reset request page"],
+    ["/auth/reset-password","Set-new-password page"]
+  ]){
+    const r=await probe("GET",path);
+    expect(`${label} loads`,r.status===200,`got ${r.status}`);
+  }
+
+  {
+    const r=await probe("GET","/auth/sign-in");
+    expect("Sign-in page offers real Google OAuth",
+      /oauth-actions|Sign in with Google/i.test(r.body)||r.body.includes("Google"),
+      "no Google sign-in control rendered");
+  }
+
+  // ── Public pages still work; private pages still protected ────────────────
+
+  for(const path of ["/","/pricing"]){
+    const r=await probe("GET",path);
+    expect(`Public page ${path} loads signed out`,r.status===200,`got ${r.status}`);
+  }
+
+  {
+    const r=await probe("GET","/dashboard");
+    expect("Private page still requires a session",
+      redirectsToSignIn(r),
+      `expected a redirect to sign-in, got ${r.status} -> ${r.location||"(none)"}`);
+    expect("Sign-in redirect preserves the requested destination",
+      (r.location||"").includes("next="),
+      `no next= parameter in ${r.location||"(none)"}`);
+  }
+
+  // ── Report ────────────────────────────────────────────────────────────────
+
+  const failed=results.filter(r=>!r.ok);
+  for(const r of results){
+    console.log(`${r.ok?"PASS":"FAIL"}  ${r.name}`);
+    if(!r.ok&&r.detail)console.log(`      ↳ ${r.detail}`);
+  }
+  console.log(`\n${results.length-failed.length}/${results.length} passed, ${failed.length} failure(s)`);
+  process.exitCode=failed.length?1:0;
+}
+
+run().catch(e=>{
+  console.error(`smoke test could not run: ${e.message}`);
+  console.error(`Is a server listening on ${BASE}?`);
+  process.exitCode=1;
+});

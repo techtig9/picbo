@@ -1,3 +1,8 @@
+<!-- QUARANTINED MOCK — NOT PRODUCTION.
+     This file is a static design prototype. Its authentication and payment
+     controls were mocks (any password granted access; "upgrade" only showed a
+     toast). They have been neutralised and now point at the real Next.js app.
+     See legacy-prototype/DO-NOT-DEPLOY.md. -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -58,7 +63,7 @@
 
     <nav class="side-nav">
       <div class="side-group">Workspace</div>
-      <a class="side-link" href="dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="7" height="9" rx="2"/><rect x="14" y="3" width="7" height="5" rx="2"/><rect x="14" y="12" width="7" height="9" rx="2"/><rect x="3" y="16" width="7" height="5" rx="2"/></svg>Create</a>
+      <a class="side-link" href="/dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="7" height="9" rx="2"/><rect x="14" y="3" width="7" height="5" rx="2"/><rect x="14" y="12" width="7" height="9" rx="2"/><rect x="3" y="16" width="7" height="5" rx="2"/></svg>Create</a>
       <a class="side-link" href="explore.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M16.24 7.76l-2.12 6.36-6.36 2.12 2.12-6.36z"/></svg>Explore</a>
       <a class="side-link" id="navCreations" href="library.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 21V9M16 21V13"/></svg>Recent creations</a>
       <a class="side-link" id="navHistory" href="library.html#history"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Prompt history</a>

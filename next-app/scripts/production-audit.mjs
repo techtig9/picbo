@@ -1,9 +1,336 @@
+#!/usr/bin/env node
+/**
+ * Picbo production readiness audit.
+ *
+ * Replaces the previous stub, which checked only that package.json,
+ * README.md, .env.example and supabase/ existed and then printed
+ * {"ok": true} unconditionally. That script was cited as evidence of
+ * production readiness while every check below was failing.
+ *
+ * Every check here asserts something that has actually broken in this
+ * repository. A check that cannot fail does not belong in this file.
+ *
+ * Usage:  node scripts/production-audit.mjs [--json]
+ * Exit:   0 = no failures, 1 = at least one FAIL.
+ */
 import fs from "node:fs";
 import path from "node:path";
-const required=["package.json"];
-const recommended=[".env.example","README.md","supabase"];
-const root=process.cwd();
-const missing=required.filter(x=>!fs.existsSync(path.join(root,x)));
-const recommendations=recommended.filter(x=>!fs.existsSync(path.join(root,x)));
-console.log(JSON.stringify({ok:missing.length===0,missing,recommendations},null,2));
-if(missing.length)process.exitCode=1;
+
+const appRoot=process.cwd();
+const repoRoot=path.resolve(appRoot,"..");
+const results=[];
+
+const read=p=>{try{return fs.readFileSync(p,"utf8")}catch{return null}};
+const exists=p=>fs.existsSync(p);
+
+/**
+ * Source with comments removed.
+ *
+ * Checks below assert on what the code *does*, so they must not match prose.
+ * Three of them originally failed on their own explanatory comments — and a
+ * check that a comment can flip to FAIL is one a comment can also flip to
+ * PASS, which is worse.
+ */
+function code(p){
+  const s=read(p);
+  if(s===null)return null;
+  return s
+    .replace(/\/\*[\s\S]*?\*\//g,"")   // block comments
+    .replace(/(^|[^:])\/\/.*$/gm,"$1");  // line comments (leaves "http://" alone)
+}
+
+/** True only when the file opens with the "use client" directive. */
+function isClientModule(p){
+  const s=code(p);
+  if(!s)return false;
+  return /^\s*["']use client["']/.test(s);
+}
+
+function check(id,name,fn){
+  try{
+    const r=fn();
+    results.push({id,name,status:r.ok?"pass":(r.warn?"warn":"fail"),detail:r.detail||""});
+  }catch(e){
+    results.push({id,name,status:"fail",detail:`check threw: ${e.message}`});
+  }
+}
+
+// ── Repository integrity ────────────────────────────────────────────────────
+
+check("REPO-01","Next.js app is real files, not a broken gitlink",()=>{
+  const p=path.join(repoRoot,"next-app");
+  if(!exists(p))return {ok:false,detail:"next-app/ missing"};
+  if(!fs.statSync(p).isDirectory())return {ok:false,detail:"next-app is not a directory"};
+  const count=fs.readdirSync(path.join(p,"app")).length;
+  return count>0?{ok:true,detail:`next-app/app has ${count} entries`}
+                :{ok:false,detail:"next-app/app is empty — the gitlink regression is back"};
+});
+
+// ── Mock prototype quarantine ───────────────────────────────────────────────
+
+const MOCK_FILES=["login.html","dashboard.html","billing.html","register.html","admin.html"];
+
+check("MOCK-01","No mock HTML pages at the repository root",()=>{
+  const stray=MOCK_FILES.filter(f=>exists(path.join(repoRoot,f)));
+  return stray.length===0
+    ?{ok:true,detail:"root is clean"}
+    :{ok:false,detail:`deployable mock pages at repo root: ${stray.join(", ")}`};
+});
+
+check("MOCK-02","Quarantined prototype carries its warning banner",()=>{
+  const dir=path.join(repoRoot,"legacy-prototype");
+  if(!exists(dir))return {ok:true,detail:"no legacy-prototype/ directory"};
+  const missing=fs.readdirSync(dir).filter(f=>f.endsWith(".html"))
+    .filter(f=>!(read(path.join(dir,f))||"").startsWith("<!-- QUARANTINED MOCK"));
+  return missing.length===0
+    ?{ok:true,detail:"all prototype pages banner-marked"}
+    :{ok:false,detail:`banner removed from: ${missing.join(", ")}`};
+});
+
+check("MOCK-03","No fake authentication or fake payment handlers survive",()=>{
+  const dir=path.join(repoRoot,"legacy-prototype");
+  if(!exists(dir))return {ok:true,detail:"no legacy-prototype/ directory"};
+  const offenders=[];
+  for(const f of fs.readdirSync(dir).filter(f=>f.endsWith(".html"))){
+    const s=read(path.join(dir,f))||"";
+    if(s.includes("dashboard.html"))offenders.push(`${f}: links to mock dashboard`);
+    if(/picboToast\(\s*'(Switched to|Upgraded|Payment)/.test(s))offenders.push(`${f}: fake payment confirmation`);
+  }
+  return offenders.length===0
+    ?{ok:true,detail:"no mock auth/payment handlers"}
+    :{ok:false,detail:offenders.join("; ")};
+});
+
+// ── Auth ────────────────────────────────────────────────────────────────────
+
+check("AUTH-01","Google OAuth is really implemented",()=>{
+  const s=read(path.join(appRoot,"app/auth/oauth-actions.ts"))||"";
+  return s.includes("signInWithOAuth")&&s.includes('provider:"google"')
+    ?{ok:true,detail:"supabase.auth.signInWithOAuth present"}
+    :{ok:false,detail:"no signInWithOAuth call — Google sign-in is not wired up"};
+});
+
+check("AUTH-02","OAuth callback route exists and exchanges the code",()=>{
+  const s=read(path.join(appRoot,"app/auth/callback/route.ts"))||"";
+  if(!s)return {ok:false,detail:"app/auth/callback/route.ts missing — Google returns users to a 404 (the white page)"};
+  return s.includes("exchangeCodeForSession")
+    ?{ok:true,detail:"exchangeCodeForSession present"}
+    :{ok:false,detail:"callback exists but never exchanges the authorization code"};
+});
+
+check("AUTH-03","Callback is exempt from the signed-in /auth bounce",()=>{
+  const s=read(path.join(appRoot,"lib/auth/routes.ts"))||"";
+  return s.includes("/auth/callback")
+    ?{ok:true,detail:"callback allow-listed while signed in"}
+    :{ok:false,detail:"an authenticated request to /auth/callback would be redirected before the code exchange"};
+});
+
+check("AUTH-04","Password reset flow exists",()=>{
+  const ok=exists(path.join(appRoot,"app/auth/forgot-password/page.tsx"))
+    &&exists(path.join(appRoot,"app/auth/reset-password/page.tsx"))
+    &&(read(path.join(appRoot,"app/auth/actions.ts"))||"").includes("resetPasswordForEmail");
+  return ok?{ok:true,detail:"request + update + email route present"}
+           :{ok:false,detail:"users who forget their password cannot recover their account"};
+});
+
+check("AUTH-05","Auth failures land on a readable error page",()=>{
+  return exists(path.join(appRoot,"app/auth/auth-error/page.tsx"))
+    ?{ok:true,detail:"auth-error page present"}
+    :{ok:false,detail:"auth failures would render as a blank screen"};
+});
+
+// ── Middleware routing ──────────────────────────────────────────────────────
+
+check("MW-01","Machine endpoints bypass the cookie-session gate",()=>{
+  const s=read(path.join(appRoot,"lib/auth/routes.ts"))||"";
+  const required=["/api/billing/webhook","/api/render-worker","/api/health","/api/v1"];
+  const missing=required.filter(r=>!s.includes(r));
+  return missing.length===0
+    ?{ok:true,detail:"webhook, worker, health and developer API are self-authenticating"}
+    :{ok:false,detail:`still behind the session gate (307 instead of reaching the handler): ${missing.join(", ")}`};
+});
+
+check("MW-02","Middleware matcher excludes static files",()=>{
+  const s=read(path.join(appRoot,"middleware.ts"))||"";
+  return /\\\\\.\[a-zA-Z0-9\]\+\$|\.\*\\\\\.\[/.test(s)||s.includes("[a-zA-Z0-9]+$")
+    ?{ok:true,detail:"robots.txt / sitemap.xml / assets are not session-gated"}
+    :{ok:false,detail:"middleware still runs on static files — robots.txt will 307 to sign-in"};
+});
+
+check("MW-03","Unauthenticated API requests get 401 JSON, not an HTML redirect",()=>{
+  const s=read(path.join(appRoot,"middleware.ts"))||"";
+  return s.includes("UNAUTHENTICATED")&&s.includes("status:401")
+    ?{ok:true,detail:"API paths return 401 JSON"}
+    :{ok:false,detail:"API clients receive a 307 to an HTML page"};
+});
+
+// ── Email ───────────────────────────────────────────────────────────────────
+
+check("MAIL-01","Resend integration exists and is server-only",()=>{
+  const s=read(path.join(appRoot,"lib/email/client.ts"))||"";
+  if(!s)return {ok:false,detail:"no Resend integration"};
+  if(isClientModule(path.join(appRoot,"lib/email/client.ts")))return {ok:false,detail:"mail client is a client module — the API key would ship to the browser"};
+  return s.includes("RESEND_API_KEY")
+    ?{ok:true,detail:"server-side Resend transport present"}
+    :{ok:false,detail:"RESEND_API_KEY never read"};
+});
+
+check("MAIL-02","No Resend key is exposed to the browser",()=>{
+  const bad=[];
+  const walk=d=>{
+    for(const e of fs.readdirSync(d,{withFileTypes:true})){
+      if(e.name==="node_modules"||e.name===".next"||e.name.startsWith("."))continue;
+      const p=path.join(d,e.name);
+      if(e.isDirectory()){walk(p);continue}
+      if(!/\.(ts|tsx|js|jsx)$/.test(e.name))continue;
+      const s=code(p)||"";
+      if(/NEXT_PUBLIC_RESEND/.test(s))bad.push(`${path.relative(appRoot,p)}: NEXT_PUBLIC_RESEND_*`);
+      if(isClientModule(p)&&s.includes("RESEND_API_KEY"))bad.push(`${path.relative(appRoot,p)}: RESEND_API_KEY in a client component`);
+    }
+  };
+  walk(appRoot);
+  return bad.length===0?{ok:true,detail:"no client-side Resend references"}:{ok:false,detail:bad.join("; ")};
+});
+
+check("MAIL-03","Email failure cannot break authentication",()=>{
+  const s=read(path.join(appRoot,"lib/email/auth-emails.ts"))||"";
+  return s.includes("catch")&&/Promise<void>/.test(s)
+    ?{ok:true,detail:"sendAuthEventEmail swallows and logs every failure"}
+    :{ok:false,detail:"a mail outage could fail a successful sign-in"};
+});
+
+check("MAIL-04","Duplicate auth emails are prevented at the database level",()=>{
+  const dir=path.join(appRoot,"supabase/migrations");
+  const hit=exists(dir)&&fs.readdirSync(dir).some(f=>(read(path.join(dir,f))||"").includes("email_events_dedupe_uidx"));
+  return hit?{ok:true,detail:"unique (user_id,event,dedupe_key) index present"}
+            :{ok:false,detail:"no send-idempotency index — users can be emailed twice"};
+});
+
+// ── Credits ─────────────────────────────────────────────────────────────────
+
+check("CREDIT-01","Credit reservation is concurrency-safe",()=>{
+  const dir=path.join(appRoot,"supabase/migrations");
+  if(!exists(dir))return {ok:false,detail:"no migrations directory"};
+  const files=fs.readdirSync(dir).sort();
+  let locked=false;
+  for(const f of files){
+    const s=read(path.join(dir,f))||"";
+    if(!s.includes("function public.reserve_credits"))continue;
+    locked=s.includes("pg_advisory_xact_lock")||s.includes("for update");
+  }
+  return locked
+    ?{ok:true,detail:"latest reserve_credits definition takes a per-workspace lock"}
+    :{ok:false,detail:"reserve_credits has a check-then-act race: concurrent jobs can overspend a workspace"};
+});
+
+check("CREDIT-02","Server does not take the credit price from the client",()=>{
+  const s=code(path.join(appRoot,"app/api/ai/generate/route.ts"))||"";
+  return /body\.creditCost/.test(s)
+    ?{ok:false,detail:"app/api/ai/generate/route.ts trusts body.creditCost — a client can set its own price"}
+    :{ok:true,detail:"cost is derived server-side"};
+});
+
+// ── SEO ─────────────────────────────────────────────────────────────────────
+
+check("SEO-01","Root layout does not blanket-noindex the marketing site",()=>{
+  const s=read(path.join(appRoot,"app/layout.tsx"))||"";
+  return /robots:\s*\{\s*index:\s*false/.test(s)
+    ?{ok:false,detail:"root layout sets index:false — public pages inherit noindex"}
+    :{ok:true,detail:"no blanket noindex"};
+});
+
+check("SEO-02","robots.txt does not both allow and disallow everything",()=>{
+  const s=read(path.join(appRoot,"app/robots.ts"))||"";
+  if(!s)return {ok:false,detail:"app/robots.ts missing"};
+  return /allow:\s*\[?["'`]\/["'`]/.test(s)&&/disallow:\s*["'`]\/["'`]/.test(s)
+    ?{ok:false,detail:"contradictory Allow: / and Disallow: / — most crawlers will block the whole site"}
+    :{ok:true,detail:"robots directives are coherent"};
+});
+
+check("SEO-03","A sitemap is generated",()=>{
+  return exists(path.join(appRoot,"app/sitemap.ts"))
+    ?{ok:true,detail:"app/sitemap.ts present"}
+    :{ok:false,detail:"no sitemap — public pages will not be discovered"};
+});
+
+// ── Observability ───────────────────────────────────────────────────────────
+
+check("OBS-01","The structured logger is actually used",()=>{
+  let uses=0;
+  const walk=d=>{
+    for(const e of fs.readdirSync(d,{withFileTypes:true})){
+      if(e.name==="node_modules"||e.name===".next"||e.name.startsWith("."))continue;
+      const p=path.join(d,e.name);
+      if(e.isDirectory()){walk(p);continue}
+      if(!/\.(ts|tsx)$/.test(e.name))continue;
+      if(p.endsWith("observability/logger.ts"))continue;
+      if((code(p)||"").includes("observability/logger"))uses++;
+    }
+  };
+  walk(appRoot);
+  return uses>0
+    ?{ok:true,detail:`imported by ${uses} module(s)`}
+    :{ok:false,detail:"lib/observability/logger.ts is dead code — there is no structured logging"};
+});
+
+// ── Secrets ─────────────────────────────────────────────────────────────────
+
+check("SEC-01","No committed .env with real values",()=>{
+  const bad=[".env",".env.local",".env.production"]
+    .flatMap(f=>[path.join(appRoot,f),path.join(repoRoot,f)])
+    .filter(exists);
+  return bad.length===0?{ok:true,detail:"no env files present"}
+                       :{ok:false,detail:`env file(s) present in the tree: ${bad.map(p=>path.relative(repoRoot,p)).join(", ")}`};
+});
+
+check("SEC-02","Service-role key is never exposed to the browser",()=>{
+  const bad=[];
+  const walk=d=>{
+    for(const e of fs.readdirSync(d,{withFileTypes:true})){
+      if(e.name==="node_modules"||e.name===".next"||e.name.startsWith("."))continue;
+      const p=path.join(d,e.name);
+      if(e.isDirectory()){walk(p);continue}
+      if(!/\.(ts|tsx)$/.test(e.name))continue;
+      const s=code(p)||"";
+      if(/NEXT_PUBLIC_[A-Z_]*SERVICE_ROLE/.test(s))bad.push(path.relative(appRoot,p));
+      if(isClientModule(p)&&s.includes("SUPABASE_SERVICE_ROLE_KEY"))bad.push(path.relative(appRoot,p));
+    }
+  };
+  walk(appRoot);
+  return bad.length===0?{ok:true,detail:"service-role key is server-only"}:{ok:false,detail:bad.join(", ")};
+});
+
+check("ENV-01",".env.example documents every required variable",()=>{
+  const s=read(path.join(appRoot,".env.example"))||"";
+  const required=[
+    "NEXT_PUBLIC_SUPABASE_URL","NEXT_PUBLIC_SUPABASE_ANON_KEY","SUPABASE_SERVICE_ROLE_KEY",
+    "NEXT_PUBLIC_APP_URL","RESEND_API_KEY","RESEND_FROM_EMAIL","RESEND_FROM_NAME",
+    "PADDLE_API_KEY","PADDLE_WEBHOOK_SECRET","RENDER_WORKER_SECRET"
+  ];
+  const missing=required.filter(k=>!s.includes(k));
+  return missing.length===0?{ok:true,detail:`${required.length} required variables documented`}
+                           :{ok:false,detail:`undocumented: ${missing.join(", ")}`};
+});
+
+// ── Report ──────────────────────────────────────────────────────────────────
+
+const failed=results.filter(r=>r.status==="fail");
+const warned=results.filter(r=>r.status==="warn");
+
+if(process.argv.includes("--json")){
+  console.log(JSON.stringify({
+    ok:failed.length===0,
+    summary:{total:results.length,passed:results.length-failed.length-warned.length,warned:warned.length,failed:failed.length},
+    results
+  },null,2));
+}else{
+  const icon={pass:"PASS",warn:"WARN",fail:"FAIL"};
+  for(const r of results){
+    console.log(`${icon[r.status].padEnd(5)} ${r.id.padEnd(10)} ${r.name}`);
+    if(r.status!=="pass"&&r.detail)console.log(`${"".padEnd(16)}↳ ${r.detail}`);
+  }
+  console.log("");
+  console.log(`${results.length-failed.length-warned.length}/${results.length} passed, ${warned.length} warning(s), ${failed.length} failure(s)`);
+}
+
+process.exitCode=failed.length?1:0;

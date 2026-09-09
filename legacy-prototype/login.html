@@ -1,3 +1,8 @@
+<!-- QUARANTINED MOCK — NOT PRODUCTION.
+     This file is a static design prototype. Its authentication and payment
+     controls were mocks (any password granted access; "upgrade" only showed a
+     toast). They have been neutralised and now point at the real Next.js app.
+     See legacy-prototype/DO-NOT-DEPLOY.md. -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -58,7 +63,7 @@
     <h1>Welcome back</h1>
     <p class="sub">Log in to keep creating.</p>
 
-    <form id="loginForm" onsubmit="event.preventDefault(); window.location.href='dashboard.html';">
+    <form id="loginForm" onsubmit="event.preventDefault(); window.location.href='/auth/sign-in';">
       <div class="field">
         <label>Email</label>
         <input type="email" placeholder="you@email.com" required>
@@ -82,8 +87,8 @@
 
     <div class="auth-divider"><span>or continue with</span></div>
     <div class="social-row">
-      <button class="social-btn" onclick="window.location.href='dashboard.html'">Google</button>
-      <button class="social-btn" onclick="window.location.href='dashboard.html'">Apple</button>
+      <button class="social-btn" onclick="window.location.href='/auth/sign-in';">Google</button>
+      <button class="social-btn" onclick="window.location.href='/auth/sign-in';">Apple</button>
     </div>
 
     <p class="auth-foot">New to Picbo.ai? <a href="register.html">Create a free account</a></p>
