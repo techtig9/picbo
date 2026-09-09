@@ -1,0 +1,37 @@
+:root{--bg:#08090d;--panel:#101218;--line:#252a35;--text:#f6f7fb;--muted:#9aa1b2;--accent:#8b7cff;--teal:#45d9c0}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 70% -10%,#8b7cff22,transparent 34%),var(--bg);color:var(--text);font-family:Inter,system-ui,sans-serif}a{text-decoration:none;color:inherit}button,input,textarea{font:inherit}.shell{min-height:100vh}.side{position:fixed;inset:0 auto 0 0;width:245px;background:#0a0b0fee;border-right:1px solid var(--line);padding:18px 13px;display:flex;flex-direction:column;z-index:20}.brand{font-size:20px;font-weight:800;display:flex;align-items:center;gap:10px;padding:8px 10px 22px}.logo{width:34px;height:34px;border-radius:11px;background:linear-gradient(135deg,var(--accent),var(--teal));display:grid;place-items:center}.nav{display:grid;gap:3px}.nav a{padding:10px;border-radius:10px;color:#aeb4c3;font-size:13px;display:flex;gap:10px;align-items:center}.nav a:hover{background:#191c25;color:#fff}.label{margin:16px 8px 7px;color:#626a7b;font-size:10px;font-weight:800;text-transform:uppercase}.bottom{margin-top:auto}.main{margin-left:245px}.top{height:68px;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 25px;gap:10px;position:sticky;top:0;background:#08090ddd;backdrop-filter:blur(15px);z-index:10}.search{max-width:560px;width:100%;background:#0e1016;border:1px solid var(--line);padding:10px 14px;border-radius:12px;color:#fff}.actions{margin-left:auto;display:flex;gap:8px;align-items:center}.btn,.icon{border:1px solid var(--line);background:#171a22;color:#fff;border-radius:11px;padding:10px 14px;font-size:13px;font-weight:700}.primary{background:linear-gradient(135deg,var(--accent),#6d5df0)}.icon{width:38px;height:38px;padding:0}.avatar{width:38px;height:38px;border-radius:50%;background:#202534;display:grid;place-items:center;font-size:12px;font-weight:800}.content{padding:30px;max-width:1450px;margin:auto}.eyebrow{font-size:11px;font-weight:800;color:#8f97aa;letter-spacing:.08em}.title{font-size:30px;letter-spacing:-.04em;margin:6px 0}.muted{color:var(--muted);font-size:13px}.hero,.card{border:1px solid var(--line);background:linear-gradient(180deg,#12151d,#0f1117);border-radius:18px}.hero{margin-top:22px;padding:24px;background:radial-gradient(circle at 80% 20%,#8b7cff22,transparent 35%),linear-gradient(135deg,#12141d,#0e1015)}textarea{width:100%;min-height:105px;margin-top:17px;background:#0b0d12;border:1px solid #303645;border-radius:14px;padding:14px;color:#fff;resize:vertical}.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.chip{border:1px solid var(--line);background:#151821;color:#adb4c2;border-radius:999px;padding:7px 10px;font-size:12px}.grid{display:grid;gap:15px}.four{grid-template-columns:repeat(4,1fr)}.three{grid-template-columns:repeat(3,1fr)}.card{padding:18px}.quick{min-height:115px;display:flex;align-items:center;gap:12px}.quick h3{margin:0 0 5px;font-size:15px}.qicon{width:43px;height:43px;border-radius:12px;background:#1b1e28;display:grid;place-items:center}.head{display:flex;justify-content:space-between;align-items:flex-end;margin:28px 0 12px}.metric{font-size:28px;font-weight:800;margin-top:8px}.table{width:100%;border-collapse:collapse}.table th,.table td{padding:13px 10px;border-bottom:1px solid var(--line);text-align:left;font-size:13px}.table th{font-size:10px;color:#777f91;text-transform:uppercase}.status{background:#17332e;color:#6fe2cc;border-radius:999px;padding:5px 8px;font-size:11px}.notice{margin-top:18px;padding:12px;border:1px solid #373c4a;border-radius:12px;color:#aeb4c3;font-size:13px}.mobile{display:none}.backdrop{display:none}
+@media(max-width:1000px){
+  .side{transform:translateX(-100%);transition:transform .25s ease}
+  .side.open{transform:translateX(0)}
+  .main{margin-left:0}
+  .four{grid-template-columns:repeat(2,1fr)}
+  .mobile{display:block}
+  .backdrop{display:block;position:fixed;inset:0;background:#000a;z-index:19;animation:fadeIn .2s ease}
+}
+@media(max-width:650px){.content{padding:18px}.four,.three{grid-template-columns:1fr}.search{display:none}.title{font-size:25px}}
+
+.auth{min-height:100vh;display:grid;place-items:center;padding:24px;background:radial-gradient(circle at 50% 0%,#8b7cff25,transparent 38%),var(--bg)}
+.auth-card{width:min(440px,100%);padding:32px;border:1px solid var(--line);border-radius:22px;background:#101218;box-shadow:0 20px 80px #0008}.auth-card .logo{margin-bottom:20px}.auth-card h1{margin:0 0 8px;font-size:26px}.form{display:grid;gap:16px;margin:24px 0}.form label{display:grid;gap:7px;font-size:12px;color:#aeb4c3}.form input{background:#0b0d12;border:1px solid #303645;color:#fff;border-radius:11px;padding:12px;outline:0}.error{border-color:#61353d;color:#ff9ca9}
+
+/* ===== §39 Animations, §41 Accessibility — centralized so every page inherits these for free ===== */
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes shimmer{0%{background-position:-400px 0}100%{background-position:400px 0}}
+
+.card,.chip,.btn,.icon,.qicon,.nav a{transition:transform .15s ease,background .15s ease,border-color .15s ease,box-shadow .15s ease}
+.card:hover{border-color:#3a4152;box-shadow:0 8px 30px #0006}
+.quick:hover{transform:translateY(-2px)}
+.btn:hover,.icon:hover{background:#1d212c;border-color:#3a4152}
+.btn:active,.icon:active,.chip:active{transform:scale(.97)}
+.chip:hover{border-color:#4a5266;color:#fff}
+
+/* Keyboard focus must always be visible — this is the app-wide default so no
+   interactive element (button, link, input, chip) is ever silently unreachable
+   for keyboard/screen-reader users, without relying on every page remembering to add it. */
+a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{
+  outline:2px solid var(--accent);outline-offset:2px;border-radius:6px;
+}
+
+.skeleton{background:linear-gradient(90deg,#151821 25%,#1d212c 37%,#151821 63%);background-size:800px 100%;animation:shimmer 1.6s ease-in-out infinite;border-radius:10px}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
+}

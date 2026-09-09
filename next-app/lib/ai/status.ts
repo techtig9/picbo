@@ -1,0 +1,1 @@
+export function providerConfig(){return {gemini:Boolean(process.env.GEMINI_API_KEY),fal:Boolean(process.env.FAL_KEY),geminiModels:process.env.PICBO_GEMINI_MODELS?.split(",").map(x=>x.trim()).filter(Boolean)??[],falImageModel:process.env.PICBO_FAL_IMAGE_MODEL||"fal-ai/flux/schnell"}}

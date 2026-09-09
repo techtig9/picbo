@@ -1,0 +1,6 @@
+{
+  "name":"picbo-video-render-worker",
+  "private":true,
+  "scripts":{"worker":"node worker.js"},
+  "dependencies":{"@supabase/supabase-js":"^2.57.0"}
+}

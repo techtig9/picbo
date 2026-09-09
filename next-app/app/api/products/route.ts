@@ -1,0 +1,2 @@
+import {NextResponse} from "next/server";import {createClient} from "@/lib/supabase/server";import {getCurrentWorkspace} from "@/lib/auth";
+export async function GET(){try{const ws=await getCurrentWorkspace();if(!ws?.workspace_id)return NextResponse.json({products:[]});const supabase=await createClient();const {data,error}=await supabase.from("products").select("id,name").eq("workspace_id",ws.workspace_id).order("name");if(error)throw error;return NextResponse.json({products:data||[]})}catch(e:any){return NextResponse.json({error:e.message},{status:500})}}

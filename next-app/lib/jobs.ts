@@ -1,0 +1,1 @@
+export type JobStatus="queued"|"running"|"validating"|"completed"|"failed"|"retrying"|"cancelled";export interface GenerationJob{id:string;status:JobStatus;task:string;progress:number;provider?:string;model?:string;errorCode?:string;creditReservationId?:string}

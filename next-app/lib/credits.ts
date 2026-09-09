@@ -1,0 +1,1 @@
+export type CreditEntryType="grant"|"charge"|"refund"|"topup"|"referral"|"adjustment";export interface CreditLedgerEntry{id:string;workspaceId:string;type:CreditEntryType;amount:number;referenceId?:string;idempotencyKey:string;createdAt:string}

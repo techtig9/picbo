@@ -1,0 +1,1 @@
+insert into storage.buckets(id,name,public) values('render-outputs','render-outputs',false) on conflict(id) do update set public=false;
