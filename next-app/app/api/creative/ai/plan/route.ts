@@ -1,7 +1,7 @@
 import {NextResponse} from "next/server";
 import {getCurrentWorkspace} from "@/lib/auth";
 import {buildShotPlan,buildCopy,normalizeProduct,buildAiCopyPrompt,parseAiCopy} from "@/lib/ai/creative-studio";
-import {runGenerationJob} from "@/lib/ai/jobs";
+import {runTextGenerationJob} from "@/lib/ai/jobs";
 
 export async function POST(req:Request){
   try{
@@ -18,7 +18,7 @@ export async function POST(req:Request){
     let copy=buildCopy(product);
     let copySource:"ai"|"template"=  "template";
     try{
-      const {result}=await runGenerationJob({task:"copy",quality:"balanced",prompt:buildAiCopyPrompt(product),metadata:{purpose:"creative_plan_copy"}},1);
+      const {result}=await runTextGenerationJob({task:"copy",quality:"balanced",prompt:buildAiCopyPrompt(product),metadata:{purpose:"creative_plan_copy"}});
       const parsed=parseAiCopy(String(result.output||""));
       if(parsed){copy=parsed;copySource="ai"}
     }catch{

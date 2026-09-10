@@ -1,7 +1,7 @@
 import {NextResponse} from "next/server";
 import {getCurrentWorkspace} from "@/lib/auth";
 import {createClient} from "@/lib/supabase/server";
-import {runGenerationJob} from "@/lib/ai/jobs";
+import {runTextGenerationJob} from "@/lib/ai/jobs";
 
 const REAL_ROUTES=[
   ["/create/photoshoot","Photoshoot Studio"],["/create/image","Image Studio"],["/create/ads","Ad Studio"],
@@ -57,7 +57,7 @@ Reply to the last user message directly and naturally (2-4 sentences, no markdow
 ACTIONS: [{"label":"...","href":"..."}]
 using only the exact hrefs listed above. Omit the ACTIONS line entirely if no navigation is relevant.`;
 
-    const {result}=await runGenerationJob({task:"chat",quality:"fast",prompt,metadata:{purpose:"lumi_assistant"}},1);
+    const {result}=await runTextGenerationJob({task:"chat",quality:"fast",prompt,metadata:{purpose:"lumi_assistant"}});
     const {reply,actions}=parseActions(String(result.output||""));
     return NextResponse.json({reply,actions,provider:result.provider});
   }catch(e:any){

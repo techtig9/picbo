@@ -181,6 +181,66 @@ async function run(){
       `no next= parameter in ${r.location||"(none)"}`);
   }
 
+
+  // ── Phase 2: generation jobs, uploads and assets ──────────────────────────
+
+  {
+    const r=await probe("POST","/api/ai/jobs/sweep",{headers:{"content-type":"application/json"}});
+    expect("Job sweep reaches its handler (cron, worker secret)",
+      !redirectsToSignIn(r),
+      `got ${r.status}${r.location?` -> ${r.location}`:""}`);
+    expect("Job sweep rejects a missing worker secret with 401",
+      r.status===401,
+      `expected 401, got ${r.status}`);
+  }
+
+  {
+    const r=await probe("GET","/api/ai/jobs/00000000-0000-0000-0000-000000000000");
+    expect("Job status endpoint requires a session (401 JSON)",
+      r.status===401&&r.contentType.includes("json"),
+      `got ${r.status} ${r.contentType}`);
+  }
+
+  {
+    const r=await probe("POST","/api/ai/jobs/00000000-0000-0000-0000-000000000000/cancel");
+    expect("Job cancel requires a session (401 JSON)",
+      r.status===401&&r.contentType.includes("json"),
+      `got ${r.status} ${r.contentType}`);
+  }
+
+  {
+    const r=await probe("POST","/api/assets/upload");
+    expect("Upload endpoint requires a session (401 JSON)",
+      r.status===401&&r.contentType.includes("json"),
+      `got ${r.status} ${r.contentType}`);
+  }
+
+  {
+    const r=await probe("GET","/api/assets");
+    expect("Asset listing requires a session (401 JSON)",
+      r.status===401&&r.contentType.includes("json"),
+      `got ${r.status} ${r.contentType}`);
+  }
+
+  {
+    // Validation must happen before authentication is even relevant to the
+    // shape of the error — an unknown task is a 400/401, never a 500.
+    const r=await probe("POST","/api/ai/generate",{
+      headers:{"content-type":"application/json"},
+      body:JSON.stringify({task:"definitely-not-a-task",prompt:"x"})
+    });
+    expect("An unknown task is rejected cleanly, not with a 500",
+      r.status<500,
+      `got ${r.status}`);
+  }
+
+  {
+    const r=await probe("GET","/create/image");
+    expect("Image Studio requires a session",
+      redirectsToSignIn(r),
+      `got ${r.status} -> ${r.location||"(none)"}`);
+  }
+
   // ── Report ────────────────────────────────────────────────────────────────
 
   const failed=results.filter(r=>!r.ok);

@@ -27,7 +27,8 @@ export const SELF_AUTHENTICATING_API_PREFIXES=[
   "/api/billing/webhook",   // Paddle-Signature HMAC verification
   "/api/render-worker",     // x-render-worker-secret shared secret
   "/api/health",            // liveness/readiness probes — must answer unauthenticated
-  "/api/v1"                 // developer platform: Bearer API key
+  "/api/v1",                // developer platform: Bearer API key
+  "/api/ai/jobs/sweep"      // cron recovery for abandoned jobs: x-render-worker-secret
 ] as const;
 
 /**

@@ -1,7 +1,7 @@
 import {NextResponse} from "next/server";
 import {getCurrentWorkspace} from "@/lib/auth";
 import {createClient} from "@/lib/supabase/server";
-import {runGenerationJob} from "@/lib/ai/jobs";
+import {runTextGenerationJob} from "@/lib/ai/jobs";
 
 export async function POST(req:Request){
   try{
@@ -19,7 +19,7 @@ export async function POST(req:Request){
     const prompt=`Write a 20-25 second UGC-style talk-to-camera video script for "${product.name}"${product.brand?` (${product.brand})`:""}. ${product.description||""}
 Angle: ${angle}. Sound like a real person talking to a friend, not an ad. No invented claims, no fake statistics, no "doctors recommend" style claims. Return plain spoken-word script text only, no stage directions, no timestamps.`;
 
-    const {result}=await runGenerationJob({task:"copy",quality:"balanced",prompt,productId,metadata:{purpose:"ugc_script"}},1);
+    const {result}=await runTextGenerationJob({task:"copy",quality:"balanced",prompt,productId,metadata:{purpose:"ugc_script"}});
     return NextResponse.json({script:String(result.output||"").trim(),provider:result.provider});
   }catch(e:any){
     const status=e?.message==="UNAUTHENTICATED"?401:e?.message?.includes("INSUFFICIENT")?402:e?.message==="ALL_PROVIDERS_FAILED"?503:500;

@@ -3,7 +3,7 @@ import {createClient} from "@/lib/supabase/server";
 import {requireUser,getCurrentWorkspace} from "@/lib/auth";
 import {safeAssetPath,createSignedAssetUrl} from "@/lib/storage";
 import {assertStorageQuota} from "@/lib/storage/quota";
-import {runGenerationJob} from "@/lib/ai/jobs";
+import {runTextGenerationJob} from "@/lib/ai/jobs";
 import {buildIdentityAnalysisPrompt,parseIdentityAnalysis} from "@/lib/ai/product-identity";
 import {revalidatePath} from "next/cache";
 
@@ -95,12 +95,12 @@ export async function analyzeProductIdentity(productId:string){
   });
 
   try{
-    const {result}=await runGenerationJob({
+    const {result}=await runTextGenerationJob({
       task:"analysis",quality:"balanced",
       prompt:buildIdentityAnalysisPrompt(product.name,product.brand),
       imageUrls,productId,
       metadata:{purpose:"product_identity_analysis"}
-    },2);
+    });
 
     const parsed=parseIdentityAnalysis(String(result.output||""));
     if(!parsed){
