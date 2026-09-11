@@ -52,8 +52,11 @@ export async function queueVideoRender(
         durationSeconds: video.duration_seconds,
         aspectRatio: video.aspect_ratio,
         brief: video.brief,
-        estimatedCredits: credits,
         ...(renderManifest || {}),
+        // After the spread on purpose: estimatedCredits is what failRenderJob
+        // refunds, so a client-supplied manifest key must never be able to
+        // overwrite the server's own estimate.
+        estimatedCredits: credits,
       },
       idempotency_key: idempotencyKey,
     })

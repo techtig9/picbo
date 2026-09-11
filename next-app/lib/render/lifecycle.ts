@@ -1,4 +1,5 @@
 import {createAdminClient} from "@/lib/supabase/admin";
+import {assertRenderOutputPath} from "./output-path";
 
 const BACKOFF_BASE_MS=30_000; // 30s
 const BACKOFF_CAP_MS=10*60_000; // 10min
@@ -17,6 +18,11 @@ export async function completeRenderJob(jobId:string,output:RenderOutput){
   const {data:job,error}=await supabase.from("render_jobs").select("id,workspace_id,video_project_id,created_by").eq("id",jobId).maybeSingle();
   if(error)throw error;
   if(!job)throw new Error("RENDER_JOB_NOT_FOUND");
+
+  // The worker is external and reports its own output location. Never create
+  // an asset row for a path outside this job's workspace: doing so would hand
+  // this workspace a signed URL to another tenant's object.
+  assertRenderOutputPath(output.storagePath,job.workspace_id);
 
   const {data:asset,error:assetErr}=await supabase.from("assets").insert({
     workspace_id:job.workspace_id,kind:"render_output",status:"ready",

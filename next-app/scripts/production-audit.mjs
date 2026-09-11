@@ -312,6 +312,69 @@ check("ENV-01",".env.example documents every required variable",()=>{
                            :{ok:false,detail:`undocumented: ${missing.join(", ")}`};
 });
 
+// ── Generation, output and uploads ──────────────────────────────────────────
+
+check("GEN-01","Generation output is persisted, not just left as provider JSON",()=>{
+  const s=code(path.join(appRoot,"lib/generation/persist-output.ts"))||"";
+  if(!s)return {ok:false,detail:"no output persistence — provider URLs expire and the user never sees the result"};
+  return s.includes("persistGenerationOutput")&&s.includes("picbo-assets")
+    ?{ok:true,detail:"output is downloaded, validated and stored"}
+    :{ok:false,detail:"persist-output.ts does not store to the assets bucket"};
+});
+
+check("GEN-02","The studio actually renders the generated image",()=>{
+  const studio=code(path.join(appRoot,"app/create/image/page.tsx"))||"";
+  const result=code(path.join(appRoot,"components/creative/GenerationResult.tsx"))||"";
+  if(/Results are returned by the configured provider/.test(studio)){
+    return {ok:false,detail:"studio still reports success as a string instead of showing the image"};
+  }
+  return result.includes("<img")||result.includes("<video")
+    ?{ok:true,detail:"results render as real media"}
+    :{ok:false,detail:"no media element in the result component"};
+});
+
+check("GEN-03","Output is validated by its bytes, not its Content-Type",()=>{
+  const s=code(path.join(appRoot,"lib/generation/media-validation.ts"))||"";
+  return s.includes("sniffMediaFormat")&&s.includes("validateMedia")
+    ?{ok:true,detail:"magic-byte sniffing with format allow-list"}
+    :{ok:false,detail:"a JSON error body could be stored and billed as an image"};
+});
+
+check("GEN-04","Generation jobs are durable and pollable",()=>{
+  const jobs=code(path.join(appRoot,"lib/ai/jobs.ts"))||"";
+  const pollRoute=exists(path.join(appRoot,"app/api/ai/jobs/[id]/route.ts"));
+  const sweep=exists(path.join(appRoot,"app/api/ai/jobs/sweep/route.ts"));
+  if(!jobs.includes("submitGenerationJob"))return {ok:false,detail:"no async submission — generation still runs inline in the request"};
+  if(!pollRoute)return {ok:false,detail:"no job status endpoint to poll"};
+  if(!sweep)return {ok:false,detail:"no sweep endpoint — abandoned jobs strand credits forever"};
+  return {ok:true,detail:"submit, poll, cancel and sweep all present"};
+});
+
+check("UPLOAD-01","Users are not asked to paste raw asset URLs",()=>{
+  const studio=code(path.join(appRoot,"app/create/image/page.tsx"))||"";
+  const uploadRoute=exists(path.join(appRoot,"app/api/assets/upload/route.ts"));
+  if(/Source image URL/i.test(studio)){
+    return {ok:false,detail:"the studio still asks users to copy an asset link by hand"};
+  }
+  return uploadRoute
+    ?{ok:true,detail:"upload endpoint and picker present"}
+    :{ok:false,detail:"no upload endpoint"};
+});
+
+check("RENDER-01","Render worker output cannot point at another workspace",()=>{
+  const s=code(path.join(appRoot,"lib/render/lifecycle.ts"))||"";
+  return s.includes("assertRenderOutputPath")
+    ?{ok:true,detail:"worker-reported storage paths are checked against the job workspace"}
+    :{ok:false,detail:"completeRenderJob trusts the worker path — cross-workspace asset exposure"};
+});
+
+check("RENDER-02","Worker secret comparison is constant-time",()=>{
+  const s=code(path.join(appRoot,"lib/render/worker-auth.ts"))||"";
+  return s.includes("timingSafeEqual")
+    ?{ok:true,detail:"constant-time comparison"}
+    :{ok:false,detail:"string equality short-circuits and leaks the secret over many requests"};
+});
+
 // ── Report ──────────────────────────────────────────────────────────────────
 
 const failed=results.filter(r=>r.status==="fail");
