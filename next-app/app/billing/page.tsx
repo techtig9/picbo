@@ -5,7 +5,8 @@ import {PLANS,priceFor} from "@/lib/billing/plans";
 import {getPaymentProvider} from "@/lib/billing/payment-provider";
 import {getWorkspaceStorageUsage} from "@/lib/storage/quota";
 import {UpgradeButton} from "./UpgradeButton";
-import {cancelSubscription} from "./actions";
+import {cancelSubscription,resumeSubscription} from "./actions";
+import {canManageBilling} from "@/lib/growth/team";
 
 export default async function Billing({searchParams}:{searchParams:Promise<{period?:string}>}){
   const {period:periodParam}=await searchParams;
@@ -13,6 +14,8 @@ export default async function Billing({searchParams}:{searchParams:Promise<{peri
   const ws=await getCurrentWorkspace();
   const supabase=await createClient();
   const provider=getPaymentProvider();
+  // Hide controls the server would refuse, rather than offering a button that errors.
+  const canBill=canManageBilling(ws?.role);
 
   const [{data:subscription},{data:credits},{data:payments}]=await Promise.all([
     supabase.from("subscriptions").select("plan,billing_period,status,current_period_end,cancel_at_period_end,cancellation_requested_at,provider_canceled_at").eq("workspace_id",ws!.workspace_id).maybeSingle(),
@@ -39,9 +42,11 @@ export default async function Billing({searchParams}:{searchParams:Promise<{peri
         {subscription?.status&&<span className="status">{subscription.status}</span>}
         {subscription?.cancel_at_period_end&&
           <p className="muted" style={{marginTop:8}}>
+            {/* Only say "cancelled" once the payment provider has confirmed it.
+                Until then the customer is still on an active subscription. */}
             {subscription?.provider_canceled_at
-              ? "Cancels at end of billing period."
-              : "Cancellation requested — confirming with the payment provider. You may still be billed until this is confirmed."}
+              ? "Cancelled — access continues until the end of this billing period."
+              : "Scheduled to cancel at the end of this billing period."}
           </p>
         }
       </div>
@@ -57,15 +62,28 @@ export default async function Billing({searchParams}:{searchParams:Promise<{peri
       </div>
       <div className="card">
         <span className="muted">Manage</span>
-        {currentPlan!=="free"&&!subscription?.cancel_at_period_end&&
+        {!canBill&&currentPlan!=="free"&&
+          <p className="muted" style={{marginTop:10}}>
+            Only workspace owners and admins can change billing.
+          </p>
+        }
+        {canBill&&currentPlan!=="free"&&!subscription?.cancel_at_period_end&&
           <form action={cancelSubscription} style={{marginTop:10}}>
-            <button className="btn">Request cancellation</button>
+            <button className="btn">Cancel subscription</button>
             <p className="muted" style={{marginTop:8}}>
-              We&apos;ll record your request and confirm it with the payment provider.
+              You&apos;ll keep access until the end of the period you&apos;ve already paid for.
             </p>
           </form>
         }
-        {currentPlan==="free"&&<p className="muted">You're on the Free plan — upgrade below anytime.</p>}
+        {canBill&&subscription?.cancel_at_period_end&&!subscription?.provider_canceled_at&&
+          <form action={resumeSubscription} style={{marginTop:10}}>
+            <button className="btn primary">Keep my subscription</button>
+            <p className="muted" style={{marginTop:8}}>
+              Undo the scheduled cancellation and stay on the {currentPlan} plan.
+            </p>
+          </form>
+        }
+        {currentPlan==="free"&&<p className="muted">You&apos;re on the Free plan — upgrade below anytime.</p>}
       </div>
     </div>
 

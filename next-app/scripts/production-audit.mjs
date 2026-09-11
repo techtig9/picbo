@@ -375,6 +375,72 @@ check("RENDER-02","Worker secret comparison is constant-time",()=>{
     :{ok:false,detail:"string equality short-circuits and leaks the secret over many requests"};
 });
 
+// ── Billing, teams and developer platform ───────────────────────────────────
+
+check("PADDLE-01","Checkout uses the Paddle Billing API, not the Classic URL scheme",()=>{
+  const provider=code(path.join(appRoot,"lib/billing/payment-provider.ts"))||"";
+  if(/checkout\.paddle\.com\/checkout\?/.test(provider)){
+    return {ok:false,detail:"builds a Paddle Classic URL while the webhook implements Paddle Billing — that link cannot open a real checkout"};
+  }
+  const api=code(path.join(appRoot,"lib/billing/paddle-api.ts"))||"";
+  return api.includes("createTransaction")&&api.includes("/transactions")
+    ?{ok:true,detail:"transactions are created through the Billing API"}
+    :{ok:false,detail:"no Paddle Billing transaction creation"};
+});
+
+check("PADDLE-02","Cancellation actually reaches Paddle",()=>{
+  const actions=code(path.join(appRoot,"app/billing/actions.ts"))||"";
+  return actions.includes("cancelSubscriptionAtPaddle")
+    ?{ok:true,detail:"the provider is called before the local record is written"}
+    :{ok:false,detail:"cancel only updates the local row — the customer keeps being charged"};
+});
+
+check("PADDLE-03","Webhook signatures are checked for freshness",()=>{
+  const s=code(path.join(appRoot,"lib/billing/payment-provider.ts"))||"";
+  return s.includes("WEBHOOK_MAX_AGE_SECONDS")
+    ?{ok:true,detail:"stale signatures are rejected"}
+    :{ok:false,detail:"a captured webhook stays replayable forever"};
+});
+
+check("PADDLE-04","Paying customers are granted the credits they bought",()=>{
+  const s=code(path.join(appRoot,"app/api/billing/webhook/route.ts"))||"";
+  if(!s.includes("grantPlanCredits"))return {ok:false,detail:"checkout completes and the balance stays at zero"};
+  return s.includes("paddle:")
+    ?{ok:true,detail:"grants are keyed on the Paddle event id, so a retry cannot double-grant"}
+    :{ok:false,detail:"credit grant is not idempotent against webhook retries"};
+});
+
+check("TEAM-01","Team actions check the caller's role before writing",()=>{
+  const s=code(path.join(appRoot,"app/team/actions.ts"))||"";
+  if(!s.includes("assertManagesMembers")){
+    return {ok:false,detail:"RLS filters the write to zero rows and returns no error — the UI reports success while nothing happened"};
+  }
+  return s.includes("assertNotLastOwner")
+    ?{ok:true,detail:"role checked, and a workspace cannot be left without an owner"}
+    :{ok:false,detail:"no last-owner protection"};
+});
+
+check("TEAM-02","An admin cannot promote themselves to owner",()=>{
+  const s=code(path.join(appRoot,"app/team/actions.ts"))||"";
+  return /Only the workspace owner can transfer ownership/.test(s)
+    ?{ok:true,detail:"ownership transfer is owner-only"}
+    :{ok:false,detail:"privilege escalation inside the RLS boundary: admin -> owner -> remove the real owner"};
+});
+
+check("DEV-01","API requests are counted before the handler runs",()=>{
+  const s=code(path.join(appRoot,"lib/developer/verify-request.ts"))||"";
+  return s.includes("beginApiRequest")
+    ?{ok:true,detail:"a failing handler still counts against the rate limit"}
+    :{ok:false,detail:"only successful requests are logged — a caller can exceed the limit indefinitely with requests that error"};
+});
+
+check("DEV-02","API keys support expiry as well as revocation",()=>{
+  const s=code(path.join(appRoot,"lib/developer/verify-request.ts"))||"";
+  return s.includes("expires_at")
+    ?{ok:true,detail:"expired keys are rejected like revoked ones"}
+    :{ok:false,detail:"keys are valid forever unless revoked by hand"};
+});
+
 // ── Report ──────────────────────────────────────────────────────────────────
 
 const failed=results.filter(r=>r.status==="fail");

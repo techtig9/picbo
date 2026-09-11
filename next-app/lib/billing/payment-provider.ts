@@ -1,11 +1,13 @@
 import crypto from "crypto";
 import type {PlanDefinition} from "./plans";
+import {createTransaction,priceIdFor,isPaddleConfigured} from "./paddle-api";
 
 export interface CheckoutParams{
   plan:PlanDefinition;
   period:"monthly"|"annual";
   workspaceId:string;
   customerEmail:string;
+  returnUrl:string;
 }
 
 export interface PaymentProvider{
@@ -15,52 +17,73 @@ export interface PaymentProvider{
 }
 
 /**
- * Paddle Billing adapter. Not wired to a live account in this environment —
- * PADDLE_API_KEY / PADDLE_WEBHOOK_SECRET / PADDLE_PRICE_* aren't set here, so
- * `configured` is false and the Billing UI shows an honest "connect a payment
- * provider" state instead of faking a successful checkout (explicitly
- * required: "Do not fake payment success").
+ * Paddle Billing adapter.
  *
- * Signature verification implements Paddle's real scheme (Paddle-Signature
- * header: `ts=<unix>;h1=<hex hmac-sha256 of "ts:body">`) so the webhook route
- * is genuinely correct the moment real credentials are added — nothing else
- * needs to change.
+ * Checkout previously built a Paddle **Classic** URL
+ * (`https://checkout.paddle.com/checkout?items=…`) while the webhook
+ * implemented Paddle **Billing**. Those are different products with
+ * incompatible APIs, so that link could never have opened a real checkout.
+ * A transaction is now created through the Billing API and the customer is
+ * sent to the checkout URL Paddle returns.
+ *
+ * With no credentials set, `configured` is false and the Billing UI shows an
+ * honest "not connected" state. Nothing anywhere fakes a successful payment.
  */
 export class PaddleProvider implements PaymentProvider{
-  get configured(){return Boolean(process.env.PADDLE_API_KEY&&process.env.PADDLE_WEBHOOK_SECRET)}
+  get configured(){return isPaddleConfigured()}
 
   async createCheckoutUrl(params:CheckoutParams):Promise<string>{
     if(!this.configured)throw new Error("PAYMENT_PROVIDER_NOT_CONFIGURED");
-    const priceIdEnvKey=`PADDLE_PRICE_${params.plan.id.toUpperCase()}_${params.period.toUpperCase()}`;
-    const priceId=process.env[priceIdEnvKey];
-    if(!priceId)throw new Error(`Missing ${priceIdEnvKey} — create this price in Paddle and set the env var`);
-    const base="https://checkout.paddle.com/checkout"; // Paddle also supports inline Checkout.js; a URL keeps the server side simple
-    const qs=new URLSearchParams({
-      items:JSON.stringify([{price_id:priceId,quantity:1}]),
-      customer_email:params.customerEmail,
-      custom_data:JSON.stringify({workspace_id:params.workspaceId,plan:params.plan.id,period:params.period})
+    const priceId=priceIdFor(params.plan.id,params.period);
+    const transaction=await createTransaction({
+      priceId,
+      workspaceId:params.workspaceId,
+      planId:params.plan.id,
+      period:params.period,
+      customerEmail:params.customerEmail,
+      returnUrl:params.returnUrl
     });
-    return `${base}?${qs.toString()}`;
+    return transaction.checkoutUrl!;
   }
 
+  /**
+   * Verifies Paddle's `Paddle-Signature: ts=<unix>;h1=<hex>` header, where the
+   * HMAC-SHA256 is taken over `<ts>:<raw body>`.
+   *
+   * The timestamp is also checked for freshness. Without that, a webhook
+   * captured once stays replayable forever; the `payment_events` unique index
+   * makes a replay a no-op today, but idempotency is a second line of defence,
+   * not a reason to accept an arbitrarily old signature.
+   */
   verifyWebhookSignature(rawBody:string,signatureHeader:string|null):boolean{
     const secret=process.env.PADDLE_WEBHOOK_SECRET;
     if(!secret||!signatureHeader)return false;
-    const parts=Object.fromEntries(signatureHeader.split(";").map(kv=>{
-      const [k,v]=kv.split("=");
-      return [k,v];
-    }));
+
+    const parts=Object.fromEntries(
+      signatureHeader.split(";").map(kv=>{
+        const idx=kv.indexOf("=");
+        return idx===-1?[kv,""]:[kv.slice(0,idx),kv.slice(idx+1)];
+      })
+    );
     const ts=parts.ts,h1=parts.h1;
     if(!ts||!h1)return false;
-    const signedPayload=`${ts}:${rawBody}`;
-    const expected=crypto.createHmac("sha256",secret).update(signedPayload).digest("hex");
+
+    const timestamp=Number(ts);
+    if(!Number.isFinite(timestamp))return false;
+    const ageSeconds=Math.abs(Date.now()/1000-timestamp);
+    if(ageSeconds>WEBHOOK_MAX_AGE_SECONDS)return false;
+
+    const expected=crypto.createHmac("sha256",secret).update(`${ts}:${rawBody}`).digest("hex");
     try{
-      return crypto.timingSafeEqual(Buffer.from(expected),Buffer.from(h1));
+      return crypto.timingSafeEqual(Buffer.from(expected,"hex"),Buffer.from(h1,"hex"));
     }catch{
-      return false; // length mismatch etc — never let a malformed header throw past verification
+      return false; // malformed hex / length mismatch must never throw past verification
     }
   }
 }
+
+/** Five minutes each way, which covers clock skew and Paddle's own retries. */
+export const WEBHOOK_MAX_AGE_SECONDS=300;
 
 export function getPaymentProvider():PaymentProvider{
   return new PaddleProvider();
