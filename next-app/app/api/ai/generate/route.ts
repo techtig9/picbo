@@ -2,6 +2,8 @@ import {NextResponse} from "next/server";
 import {submitGenerationJob,runTextGenerationJob,JobSubmissionError} from "@/lib/ai/jobs";
 import type {GenerationRequest,TaskKind,QualityTier} from "@/lib/ai/types";
 import {creditCostForTask} from "@/lib/billing/credits";
+import {requireUser} from "@/lib/auth";
+import {consumeRateLimit,rateLimitHeaders,RATE_LIMITS,TOO_MANY_REQUESTS_MESSAGE} from "@/lib/security/rate-limit";
 
 const VALID_TASKS:ReadonlySet<string>=new Set([
   "chat","copy","analysis","image","image_edit","background_remove","upscale","video","voice","render"
@@ -55,6 +57,20 @@ export async function POST(req:Request){
     productId:body.productId==null?undefined:String(body.productId),
     metadata:typeof body.metadata==="object"&&body.metadata?body.metadata:undefined
   };
+
+  // Rate limit before any provider work. Credits cap spend but not request
+  // volume, so without this a script can burst until the balance runs out.
+  let user;
+  try{user=await requireUser()}
+  catch{return NextResponse.json({error:"UNAUTHENTICATED"},{status:401})}
+
+  const limit=await consumeRateLimit(user.id,RATE_LIMITS.generate);
+  if(!limit.allowed){
+    return NextResponse.json(
+      {error:"RATE_LIMIT_EXCEEDED",message:TOO_MANY_REQUESTS_MESSAGE},
+      {status:429,headers:rateLimitHeaders(limit)}
+    );
+  }
 
   try{
     if(TEXT_TASKS.has(task)){

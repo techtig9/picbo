@@ -752,3 +752,22 @@ kbd {
   .btn.primary { padding: 0 var(--space-3); }
   .palette-backdrop { padding: 6vh var(--space-3) var(--space-3); }
 }
+
+/* ── Legal pages (Phase 5) ──────────────────────────────────────────────── */
+
+.legal { min-height: 100vh; background: var(--canvas); padding: var(--space-8) var(--space-4) var(--space-16); }
+.legal-inner { max-width: 720px; margin: 0 auto; }
+.legal-back { display: inline-block; color: var(--brand-600); font-size: var(--text-sm); margin-bottom: var(--space-6); }
+.legal-back:hover { text-decoration: underline; }
+.legal h1 { font-size: var(--text-2xl); margin-bottom: var(--space-2); }
+.legal h2 {
+  font-size: var(--text-lg); margin: var(--space-8) 0 var(--space-3);
+  padding-top: var(--space-5); border-top: 1px solid var(--border);
+}
+.legal h3 { font-size: var(--text-base); margin: var(--space-5) 0 var(--space-2); }
+.legal p, .legal li { color: var(--text-secondary); font-size: var(--text-md); line-height: var(--leading-normal); }
+.legal ul { padding-left: var(--space-5); display: grid; gap: var(--space-2); }
+.legal a { color: var(--brand-600); text-decoration: underline; }
+.legal .table { margin: var(--space-4) 0; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); }
+.legal .table th { background: var(--surface-2); }
+@media (max-width: 760px) { .legal .table { display: block; overflow-x: auto; } }

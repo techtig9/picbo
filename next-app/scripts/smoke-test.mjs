@@ -26,7 +26,9 @@ async function probe(method,path,init={}){
   // HTML pages are capped to keep failure output readable; asset bundles are
   // read whole, because the interesting rules live at the end of the file.
   try{const text=await res.text();body=full?text:text.slice(0,20000)}catch{}
-  return {status:res.status,location,body,contentType:res.headers.get("content-type")||""};
+  const headers={};
+  res.headers.forEach((v,k)=>{headers[k.toLowerCase()]=v});
+  return {status:res.status,location,body,headers,contentType:res.headers.get("content-type")||""};
 }
 
 function expect(name,condition,detail){
@@ -298,6 +300,74 @@ async function run(){
         css.body.includes("focus-visible"),
         "keyboard focus may be invisible");
     }
+  }
+
+
+  // ── Phase 5: hardening ────────────────────────────────────────────────────
+
+  {
+    const r=await probe("GET","/");
+    const h=r.headers||{};
+    expect("Content-Security-Policy is sent",
+      Boolean(h["content-security-policy"]),"no CSP header");
+    expect("CSP blocks framing",
+      (h["content-security-policy"]||"").includes("frame-ancestors 'none'"),
+      "the app can be framed by an attacker's page");
+    expect("MIME sniffing is disabled",
+      h["x-content-type-options"]==="nosniff","no nosniff header");
+    expect("Referrer policy is set",
+      Boolean(h["referrer-policy"]),"no referrer policy");
+    expect("HSTS is set",
+      Boolean(h["strict-transport-security"]),"no HSTS header");
+    expect("Framework version is not advertised",
+      !h["x-powered-by"],"x-powered-by exposes the framework version to scanners");
+  }
+
+  {
+    const r=await probe("GET","/api/health");
+    expect("API responses are not cacheable",
+      (r.headers?.["cache-control"]||"").includes("no-store"),
+      "per-user JSON and signed URLs could be held in a shared cache");
+  }
+
+  for(const [path,label] of [
+    ["/legal/privacy","Privacy policy"],
+    ["/legal/terms","Terms of service"]
+  ]){
+    const r=await probe("GET",path);
+    expect(`${label} loads signed out`,r.status===200,`got ${r.status}`);
+    expect(`${label} is indexable`,
+      !/noindex/i.test(r.body),"legal pages must be crawlable");
+  }
+
+  {
+    const r=await probe("GET","/sitemap.xml");
+    expect("Legal pages are in the sitemap",
+      r.body.includes("/legal/privacy")&&r.body.includes("/legal/terms"),
+      "legal pages are not discoverable");
+  }
+
+  {
+    const r=await probe("GET","/api/me/export");
+    expect("Data export requires a session",
+      r.status===401,`got ${r.status} — an unauthenticated export would leak an account`);
+  }
+
+  {
+    const r=await probe("GET","/api/me/shell");
+    expect("Shell context requires a session",r.status===401,`got ${r.status}`);
+  }
+
+  {
+    const r=await probe("GET","/api/health/check");
+    expect("Deep health check answers unauthenticated",
+      r.status===200||r.status===503,`got ${r.status}`);
+    expect("Deep health check does not leak secrets",
+      !/eyJ|service_role|sk-|pdl_/.test(r.body),
+      "health output contains something secret-shaped");
+    expect("Queue depth is withheld from anonymous callers",
+      !r.body.includes("aiQueued"),
+      "internal queue depth exposed publicly");
   }
 
   // ── Report ────────────────────────────────────────────────────────────────

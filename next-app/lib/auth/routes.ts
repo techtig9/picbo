@@ -12,7 +12,7 @@
  */
 
 /** Public marketing/auth pages a signed-out browser must be able to load. */
-export const PUBLIC_PAGE_PREFIXES=["/auth","/invite/","/share/"] as const;
+export const PUBLIC_PAGE_PREFIXES=["/auth","/invite/","/share/","/legal"] as const;
 export const PUBLIC_PAGE_EXACT=["/","/pricing"] as const;
 
 /** Files crawlers and browsers fetch directly — never redirect these. */

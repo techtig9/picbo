@@ -4,6 +4,7 @@ import {requireUser,getCurrentWorkspace} from "@/lib/auth";
 import {validateMedia,MediaValidationError} from "@/lib/generation/media-validation";
 import {assertStorageQuota} from "@/lib/storage/quota";
 import {log} from "@/lib/observability/logger";
+import {consumeRateLimit,rateLimitHeaders,RATE_LIMITS,TOO_MANY_REQUESTS_MESSAGE} from "@/lib/security/rate-limit";
 
 /**
  * Uploads a source image for editing, photoshoots and product references.
@@ -28,6 +29,16 @@ export async function POST(req:Request){
   const ws=await getCurrentWorkspace();
   if(!ws?.workspace_id){
     return NextResponse.json({error:"WORKSPACE_REQUIRED",message:"You need a workspace before uploading."},{status:400});
+  }
+
+  // Uploads cost no credits, so request volume is the only control on a
+  // workspace filling storage as fast as its connection allows.
+  const limit=await consumeRateLimit(user.id,RATE_LIMITS.upload);
+  if(!limit.allowed){
+    return NextResponse.json(
+      {error:"RATE_LIMIT_EXCEEDED",message:TOO_MANY_REQUESTS_MESSAGE},
+      {status:429,headers:rateLimitHeaders(limit)}
+    );
   }
 
   let form:FormData;

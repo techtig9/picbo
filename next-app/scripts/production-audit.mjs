@@ -544,6 +544,103 @@ check("A11Y-06","Theme is applied before first paint",()=>{
     :{ok:false,detail:"theme resolves after hydration, flashing on every navigation"};
 });
 
+// ── Production hardening ────────────────────────────────────────────────────
+
+check("HEALTH-01","Health checks contact dependencies, not just env vars",()=>{
+  const probes=code(path.join(appRoot,"lib/health/probes.ts"))||"";
+  if(!probes)return {ok:false,detail:"no probe module — health is inferred from configuration"};
+  const states=["unauthenticated","quota_exhausted","unreachable","not_configured"];
+  const missing=states.filter(st=>!probes.includes(st));
+  return missing.length===0
+    ?{ok:true,detail:"distinct states for rejected credentials, quota and reachability"}
+    :{ok:false,detail:`a revoked key would still read healthy; missing states: ${missing.join(", ")}`};
+});
+
+check("HEALTH-02","Health never reports ok because a key exists",()=>{
+  const route=code(path.join(appRoot,"app/api/health/check/route.ts"))||"";
+  if(/requiredChainHasAtLeastOne|Boolean\(process\.env/.test(route)){
+    return {ok:false,detail:"still inferring provider health from environment variables"};
+  }
+  return route.includes("probeAllProviders")
+    ?{ok:true,detail:"providers are actually contacted"}
+    :{ok:false,detail:"providers are not probed"};
+});
+
+check("RATE-01","User-facing routes are rate limited",()=>{
+  const lib=code(path.join(appRoot,"lib/security/rate-limit.ts"))||"";
+  if(!lib)return {ok:false,detail:"only the developer API has a limit; generation, Lumi and uploads are unbounded"};
+  const routes=[
+    ["app/api/ai/generate/route.ts","generation"],
+    ["app/api/lumi/chat/route.ts","Lumi"],
+    ["app/api/assets/upload/route.ts","uploads"]
+  ];
+  const unprotected=routes
+    .filter(([f])=>!(code(path.join(appRoot,f))||"").includes("consumeRateLimit"))
+    .map(([,name])=>name);
+  return unprotected.length===0
+    ?{ok:true,detail:"generation, Lumi and uploads all limited"}
+    :{ok:false,detail:`unbounded: ${unprotected.join(", ")}`};
+});
+
+check("RATE-02","Rate limits are counted durably, not in process memory",()=>{
+  const lib=code(path.join(appRoot,"lib/security/rate-limit.ts"))||"";
+  return lib.includes("consume_rate_limit")
+    ?{ok:true,detail:"counted in Postgres — survives cold starts"}
+    :{ok:false,detail:"an in-memory counter resets on every cold start and silently stops limiting"};
+});
+
+check("SEC-03","Security headers are configured",()=>{
+  const s=code(path.join(appRoot,"next.config.ts"))||"";
+  const required=[
+    "Content-Security-Policy","X-Content-Type-Options",
+    "Referrer-Policy","Strict-Transport-Security","Permissions-Policy"
+  ];
+  const missing=required.filter(h=>!s.includes(h));
+  return missing.length===0
+    ?{ok:true,detail:"CSP, nosniff, referrer, HSTS and permissions policy all set"}
+    :{ok:false,detail:`missing: ${missing.join(", ")}`};
+});
+
+check("SEC-04","Clickjacking is blocked",()=>{
+  const s=code(path.join(appRoot,"next.config.ts"))||"";
+  return s.includes("frame-ancestors 'none'")
+    ?{ok:true,detail:"frame-ancestors none, with X-Frame-Options for older browsers"}
+    :{ok:false,detail:"the app can be framed by an attacker's page"};
+});
+
+check("OBS-02","Log metadata is redacted before it is written",()=>{
+  const s=code(path.join(appRoot,"lib/observability/logger.ts"))||"";
+  return s.includes("function redact")&&s.includes("SENSITIVE_KEY")
+    ?{ok:true,detail:"secrets and signed URLs are scrubbed centrally"}
+    :{ok:false,detail:"a logged error object can publish an API key to the log drain"};
+});
+
+check("LEGAL-01","Privacy policy and terms exist and are public",()=>{
+  const privacy=exists(path.join(appRoot,"app/legal/privacy/page.tsx"));
+  const terms=exists(path.join(appRoot,"app/legal/terms/page.tsx"));
+  if(!privacy||!terms)return {ok:false,detail:"no legal pages — a launch blocker for Paddle and Google OAuth verification"};
+  const routes=code(path.join(appRoot,"lib/auth/routes.ts"))||"";
+  return routes.includes("/legal")
+    ?{ok:true,detail:"both present and reachable signed out"}
+    :{ok:false,detail:"legal pages exist but sit behind the session gate"};
+});
+
+check("GDPR-01","Users can export their data",()=>{
+  const s=code(path.join(appRoot,"app/api/me/export/route.ts"))||"";
+  if(!s)return {ok:false,detail:"the privacy policy promises an export that does not exist"};
+  return s.includes("createClient")&&!s.includes("createAdminClient")
+    ?{ok:true,detail:"export reads through RLS, so it can only contain the caller's own data"}
+    :{ok:false,detail:"export uses the service-role client — a bug there leaks another workspace"};
+});
+
+check("GDPR-02","Users can delete their own account",()=>{
+  const s=code(path.join(appRoot,"app/settings/actions.ts"))||"";
+  if(!s.includes("deleteAccount"))return {ok:false,detail:"no way for a user to remove themselves"};
+  return s.includes("deleteUser")
+    ?{ok:true,detail:"account deletion removes storage, workspace data and the auth user"}
+    :{ok:false,detail:"deletion does not remove the auth user"};
+});
+
 // ── Report ──────────────────────────────────────────────────────────────────
 
 const failed=results.filter(r=>r.status==="fail");

@@ -1,5 +1,6 @@
 import {NextResponse} from "next/server";
-import {getCurrentWorkspace} from "@/lib/auth";
+import {getCurrentWorkspace,requireUser} from "@/lib/auth";
+import {consumeRateLimit,rateLimitHeaders,RATE_LIMITS,TOO_MANY_REQUESTS_MESSAGE} from "@/lib/security/rate-limit";
 import {createClient} from "@/lib/supabase/server";
 import {runTextGenerationJob} from "@/lib/ai/jobs";
 
@@ -28,6 +29,15 @@ function parseActions(raw:string):{reply:string;actions:{label:string;href:strin
 
 export async function POST(req:Request){
   try{
+    const user=await requireUser();
+    const limit=await consumeRateLimit(user.id,RATE_LIMITS.lumi);
+    if(!limit.allowed){
+      return NextResponse.json(
+        {error:"RATE_LIMIT_EXCEEDED",message:TOO_MANY_REQUESTS_MESSAGE},
+        {status:429,headers:rateLimitHeaders(limit)}
+      );
+    }
+
     const ws=await getCurrentWorkspace();
     if(!ws?.workspace_id)return NextResponse.json({error:"WORKSPACE_REQUIRED"},{status:400});
     const body=await req.json();

@@ -1,66 +1,129 @@
 import {NextResponse} from "next/server";
 import {createAdminClient} from "@/lib/supabase/admin";
 import {verifyRenderWorkerSecret} from "@/lib/render/worker-auth";
-
-interface SubsystemCheck{service:string;status:"ok"|"degraded"|"error";metadata:Record<string,unknown>}
-
-async function checkDatabase(supabase:ReturnType<typeof createAdminClient>):Promise<SubsystemCheck>{
-  try{
-    const started=Date.now();
-    const {error}=await supabase.from("workspaces").select("id").limit(1);
-    if(error)throw error;
-    return {service:"database",status:"ok",metadata:{latencyMs:Date.now()-started}};
-  }catch(e:any){
-    return {service:"database",status:"error",metadata:{error:e.message}};
-  }
-}
-
-async function checkRenderQueue(supabase:ReturnType<typeof createAdminClient>):Promise<SubsystemCheck>{
-  const [{count:queued},{count:processing},{count:deadLetter24h}]=await Promise.all([
-    supabase.from("render_jobs").select("id",{count:"exact",head:true}).eq("status","queued"),
-    supabase.from("render_jobs").select("id",{count:"exact",head:true}).eq("status","processing"),
-    supabase.from("render_jobs").select("id",{count:"exact",head:true}).eq("status","dead_letter").gte("created_at",new Date(Date.now()-86400000).toISOString())
-  ]);
-  // No real worker is deployed in this environment (see PICBO_FINAL_REPORT.md),
-  // so any queued/processing job is expected to eventually be swept — that's
-  // "degraded" (known, explained), not a false "ok".
-  const status=(queued||0)+(processing||0)>0?"degraded":"ok";
-  return {service:"render_queue",status,metadata:{queued:queued||0,processing:processing||0,deadLetterLast24h:deadLetter24h||0}};
-}
-
-async function checkAiProviders():Promise<SubsystemCheck>{
-  const configured=["GROQ_API_KEY","CEREBRAS_API_KEY","OPENROUTER_API_KEY","ANTHROPIC_API_KEY","GEMINI_API_KEY","FAL_KEY"]
-    .filter(k=>Boolean(process.env[k]));
-  const requiredChainConfigured=["GROQ_API_KEY","CEREBRAS_API_KEY","OPENROUTER_API_KEY"].some(k=>process.env[k]);
-  return {
-    service:"ai_providers",
-    status:requiredChainConfigured?"ok":"error",
-    metadata:{configuredProviders:configured.length,requiredChainHasAtLeastOne:requiredChainConfigured}
-  };
-}
+import {
+  probeAllProviders,probeDatabase,probeStorage,probeTaskCapability,
+  probeConfiguration,rollup,type ProbeResult
+} from "@/lib/health/probes";
+import {log} from "@/lib/observability/logger";
 
 /**
- * Snapshots multiple subsystems and writes the result to system_health_events
- * so there's a real historical record, not just a point-in-time response.
- * This is monitoring (data collection) — it deliberately does not page
- * anyone, since no alerting destination (Slack/PagerDuty/email) is
- * configured in this environment. Call periodically (cron) alongside the
- * render sweep, or hit it directly for a point-in-time check.
+ * Deep health check.
+ *
+ * The previous version called the AI chain healthy whenever one of three
+ * environment variables was a non-empty string, without ever contacting a
+ * provider — so a revoked key reported GREEN. It also destructured `count`
+ * from queue queries without handling failure, meaning a failing query
+ * produced `null` and silently reported `ok`.
+ *
+ * Every dependency here is actually contacted, and the distinct failure modes
+ * the spec asks for are reported separately: not_configured, unreachable,
+ * unauthenticated, quota_exhausted, degraded, ok.
+ *
+ * Public (it must answer an unauthenticated load balancer), so it deliberately
+ * exposes no secrets, no queue contents and no customer data — only service
+ * names, states, latencies and HTTP status codes. Queue depth is included only
+ * for an authenticated caller.
  */
 export async function GET(req:Request){
-  const supabase=createAdminClient();
-  const [db,renderQueue,providers]=await Promise.all([checkDatabase(supabase),checkRenderQueue(supabase),checkAiProviders()]);
-  const checks=[db,renderQueue,providers];
-  const overall=checks.some(c=>c.status==="error")?"error":checks.some(c=>c.status==="degraded")?"degraded":"ok";
+  const isTrusted=verifyRenderWorkerSecret(req);
 
-  // Only persist a history row when called with the worker secret (i.e. from
-  // the periodic cron), not on every ad-hoc/public GET — keeps the table from
-  // filling with noise from uptime pingers hitting this for a simple check.
-  if(verifyRenderWorkerSecret(req)){
-    for(const c of checks){
-      await supabase.from("system_health_events").insert({service:c.service,status:c.status,metadata:c.metadata});
+  const [database,storage,providers]=await Promise.all([
+    probeDatabase(),
+    probeStorage(),
+    probeAllProviders()
+  ]);
+
+  const checks:ProbeResult[]=[
+    probeConfiguration(),
+    database,
+    storage,
+    probeTaskCapability(),
+    ...providers
+  ];
+
+  if(isTrusted){
+    checks.push(await probeQueues());
+  }
+
+  const status=rollup(checks);
+
+  // History is recorded only for the authenticated cron caller, so an uptime
+  // pinger cannot fill the table.
+  if(isTrusted){
+    try{
+      const supabase=createAdminClient();
+      await supabase.from("system_health_events").insert(
+        checks.map(c=>({
+          service:c.service,
+          status:c.state==="ok"?"ok":c.state==="degraded"?"degraded":"error",
+          metadata:{state:c.state,latencyMs:c.latencyMs??null,detail:c.detail??null,...c.metadata}
+        }))
+      );
+    }catch(e:any){
+      log("error","health.history_write_failed",{message:e?.message});
     }
   }
 
-  return NextResponse.json({status:overall,checks,timestamp:new Date().toISOString()},{status:overall==="error"?503:200});
+  if(status!=="ok"){
+    log(status==="error"?"error":"warn","health.degraded",{
+      status,
+      failing:checks.filter(c=>c.state!=="ok"&&c.state!=="not_configured").map(c=>`${c.service}:${c.state}`)
+    });
+  }
+
+  return NextResponse.json(
+    {status,checks,timestamp:new Date().toISOString()},
+    {
+      status:status==="error"?503:200,
+      headers:{"cache-control":"no-store"}
+    }
+  );
+}
+
+/**
+ * Queue depth. Errors are reported as errors rather than silently reading as
+ * an empty queue — the previous version treated a failed count query and a
+ * genuinely empty queue identically.
+ */
+async function probeQueues():Promise<ProbeResult>{
+  try{
+    const supabase=createAdminClient();
+    const dayAgo=new Date(Date.now()-86_400_000).toISOString();
+
+    const [renderQueued,renderProcessing,renderDead,aiQueued,aiRunning]=await Promise.all([
+      supabase.from("render_jobs").select("id",{count:"exact",head:true}).eq("status","queued"),
+      supabase.from("render_jobs").select("id",{count:"exact",head:true}).eq("status","processing"),
+      supabase.from("render_jobs").select("id",{count:"exact",head:true}).eq("status","dead_letter").gte("created_at",dayAgo),
+      supabase.from("ai_jobs").select("id",{count:"exact",head:true}).eq("status","queued"),
+      supabase.from("ai_jobs").select("id",{count:"exact",head:true}).eq("status","running")
+    ]);
+
+    const failed=[renderQueued,renderProcessing,renderDead,aiQueued,aiRunning].find(r=>r.error);
+    if(failed?.error){
+      return {service:"queues",state:"error",detail:`Queue depth unavailable: ${failed.error.message}`};
+    }
+
+    const metadata={
+      renderQueued:renderQueued.count||0,
+      renderProcessing:renderProcessing.count||0,
+      renderDeadLetterLast24h:renderDead.count||0,
+      aiQueued:aiQueued.count||0,
+      aiRunning:aiRunning.count||0
+    };
+
+    // A backlog means work is arriving faster than it is being served. Jobs
+    // stuck long enough to matter are separately dead-lettered by the sweep.
+    const backlog=metadata.renderQueued+metadata.aiQueued;
+    const state=metadata.renderDeadLetterLast24h>10?"degraded":backlog>50?"degraded":"ok";
+
+    return {
+      service:"queues",
+      state,
+      detail:state==="degraded"?"Queue backlog or elevated dead-letter rate":undefined,
+      metadata
+    };
+  }catch(e:any){
+    return {service:"queues",state:"error",detail:e?.message||"Could not read queue depth"};
+  }
 }

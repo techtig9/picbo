@@ -1,7 +1,7 @@
 import {AppShell} from "@/components/app-shell";
 import {createClient} from "@/lib/supabase/server";
 import {getCurrentWorkspace,requireUser} from "@/lib/auth";
-import {updateProfile,updateWorkspaceName,changePassword,deleteWorkspace} from "./actions";
+import {updateProfile,updateWorkspaceName,changePassword,deleteWorkspace,deleteAccount} from "./actions";
 
 export default async function Settings(){
   const user=await requireUser();
@@ -49,13 +49,42 @@ export default async function Settings(){
       </div>
     </div>
 
+    <div className="card" style={{marginTop:16,maxWidth:520}}>
+      <h3>Your data</h3>
+      <p className="muted">
+        Download everything on your account — profile, products, projects, generation
+        history and credit ledger — as JSON. Image files are referenced by id; download
+        them from your library.
+      </p>
+      <a className="btn" href="/api/me/export" download>Export my data</a>
+      <p className="muted small" style={{marginTop:12}}>
+        See our <a href="/legal/privacy">Privacy Policy</a> for what we store and for how long.
+      </p>
+    </div>
+
     {ws?.role==="owner"&&<div className="card" style={{marginTop:16,maxWidth:520}}>
       <h3>Danger zone</h3>
       <p className="muted">Permanently delete this workspace and everything in it. This can't be undone, and only works if you're the only member.</p>
       <form action={deleteWorkspace} className="form">
-        <label>Type "{workspace?.name}" to confirm<input name="confirmName" placeholder={workspace?.name||""} required/></label>
-        <button className="btn">Delete workspace</button>
+        <label>Type &ldquo;{workspace?.name}&rdquo; to confirm<input name="confirmName" placeholder={workspace?.name||""} required/></label>
+        <button className="btn danger">Delete workspace</button>
       </form>
     </div>}
+
+    <div className="card card-error" style={{marginTop:16,maxWidth:520}}>
+      <h3>Delete your account</h3>
+      <p className="muted">
+        Permanently removes your account, your uploads and everything you have generated.
+        This cannot be undone. Billing records are kept where the law requires — see the{" "}
+        <a href="/legal/privacy">Privacy Policy</a>.
+      </p>
+      <p className="muted small">
+        If you own a workspace with other members, transfer ownership or remove them first.
+      </p>
+      <form action={deleteAccount} className="form">
+        <label>Type DELETE to confirm<input name="confirm" placeholder="DELETE" required/></label>
+        <button className="btn danger">Delete my account</button>
+      </form>
+    </div>
   </div></AppShell>;
 }
