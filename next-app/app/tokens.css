@@ -1,0 +1,255 @@
+/* ============================================================================
+   Picbo design tokens
+   ----------------------------------------------------------------------------
+   The single source of truth for colour, type, space, radius, shadow, motion,
+   z-index and breakpoints.
+
+   Replaces the previous system, which was seven CSS variables and a pile of
+   hardcoded hex values inside a 37-line minified stylesheet, plus inline
+   `style={{}}` objects in 44 component files. Nothing could be restyled
+   without editing every page.
+
+   Two deliberate choices:
+
+   1. LIGHT-FIRST. The app was dark-only. Light is now the default and dark is
+      a real, designed theme rather than an inversion — switched by
+      [data-theme] on <html>, defaulting to the OS preference.
+
+   2. SEPARATE TEXT VARIANTS FOR SEMANTIC COLOURS. #16A34A, #F59E0B and
+      #EF4444 are the brand's success/warning/error colours, but on white they
+      measure 3.4:1, 2.2:1 and 3.8:1 — all below the 4.5:1 WCAG 2.2 AA
+      threshold for body text. The `-fg` variants below are darkened until
+      they pass, and the base colours are reserved for fills, borders and
+      icons where 3:1 applies.
+   ========================================================================== */
+
+:root {
+  /* ---- Brand -------------------------------------------------------------- */
+  --brand-500: #6D5EF8;   /* primary            4.53:1 on white */
+  --brand-600: #5B4BE0;   /* primary, pressed */
+  --brand-400: #8B5CF6;   /* gradient partner */
+  --brand-50:  #F1EFFE;   /* tinted surface */
+  --accent-500: #06B6D4;  /* secondary accent — fills and motion, never body text */
+  --accent-fg:  #0E7490;  /* 4.53:1 on white, for accent text */
+
+  /* ---- Semantic ----------------------------------------------------------- */
+  --success: #16A34A;
+  --success-fg: #15803D;  /* 4.60:1 on white */
+  --success-bg: #F0FDF4;
+  --warning: #F59E0B;
+  --warning-fg: #B45309;  /* 4.71:1 on white */
+  --warning-bg: #FFFBEB;
+  --danger: #EF4444;
+  --danger-fg: #DC2626;   /* 4.83:1 on white */
+  --danger-bg: #FEF2F2;
+  --info-bg: #EFF6FF;
+
+  /* ---- Surfaces and text (light) ------------------------------------------ */
+  --canvas: #F8FAFC;
+  --surface: #FFFFFF;
+  --surface-2: #F1F5F9;   /* inset / hovered rows */
+  --surface-3: #E2E8F0;   /* pressed / track */
+  --text: #0B1220;        /* 18.9:1 on surface */
+  --text-secondary: #475569;  /* 7.5:1 — used for body copy that must stay legible */
+  --text-muted: #64748B;      /* 4.76:1 — the AA floor, for labels and metadata only */
+  --border: #E2E8F0;
+  --border-strong: #CBD5E1;
+  --overlay: rgba(11, 18, 32, .44);
+
+  /* Sidebar reads as a distinct plane from the content canvas. */
+  --sidebar-bg: #FFFFFF;
+  --sidebar-item: var(--text-secondary);
+  --sidebar-item-hover-bg: var(--surface-2);
+  --sidebar-item-active-bg: var(--brand-50);
+  --sidebar-item-active: var(--brand-600);
+
+  --focus-ring: var(--brand-500);
+  --skeleton-from: #EEF2F7;
+  --skeleton-to: #E2E8F0;
+
+  /* ---- Type --------------------------------------------------------------- */
+  /* Geist where available, then the platform UI stack. Inter is named before
+     the generic fallbacks so a host that ships it is used ahead of Arial. */
+  --font-sans: "Geist", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+               Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* A compact application scale — the directive asks for calm density, so the
+     steps are close together and the jumps happen at heading level. */
+  --text-xs: .6875rem;    /* 11px — metadata, chip labels */
+  --text-sm: .8125rem;    /* 13px — secondary copy */
+  --text-base: .875rem;   /* 14px — application body */
+  --text-md: 1rem;        /* 16px — emphasised body, inputs (never below 16px
+                             on mobile: iOS Safari zooms the viewport otherwise) */
+  --text-lg: 1.125rem;    /* 18px — card titles */
+  --text-xl: 1.375rem;    /* 22px — section headings */
+  --text-2xl: 1.75rem;    /* 28px — page titles */
+  --text-3xl: 2.25rem;    /* 36px — hero / metrics */
+
+  --leading-tight: 1.2;
+  --leading-snug: 1.4;
+  --leading-normal: 1.55;
+
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  --tracking-tight: -.02em;
+  --tracking-wide: .06em;
+
+  /* ---- Space (4px base) ---------------------------------------------------- */
+  --space-1: .25rem;
+  --space-2: .5rem;
+  --space-3: .75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+
+  /* ---- Radius -------------------------------------------------------------- */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --radius-full: 999px;
+
+  /* ---- Elevation ----------------------------------------------------------- */
+  /* Light theme uses shadow for elevation; dark uses border and surface value,
+     because shadows are close to invisible on a dark ground. */
+  --shadow-xs: 0 1px 2px rgba(11, 18, 32, .05);
+  --shadow-sm: 0 1px 3px rgba(11, 18, 32, .07), 0 1px 2px rgba(11, 18, 32, .04);
+  --shadow-md: 0 4px 12px rgba(11, 18, 32, .08), 0 2px 4px rgba(11, 18, 32, .04);
+  --shadow-lg: 0 12px 32px rgba(11, 18, 32, .12), 0 4px 8px rgba(11, 18, 32, .05);
+  --shadow-focus: 0 0 0 3px rgba(109, 94, 248, .28);
+
+  /* ---- Motion -------------------------------------------------------------- */
+  /* Durations from the design directive. Anything an element does in response
+     to a pointer is "fast"; anything that moves layout is "normal"; only
+     entrances of large surfaces are "complex". */
+  --motion-fast: 140ms;
+  --motion-normal: 210ms;
+  --motion-complex: 340ms;
+  --ease-out: cubic-bezier(.2, .8, .3, 1);
+  --ease-in-out: cubic-bezier(.5, 0, .2, 1);
+  --ease-spring: cubic-bezier(.34, 1.4, .64, 1);
+
+  /* ---- Layout -------------------------------------------------------------- */
+  --sidebar-width: 256px;   /* directive: 248–264px */
+  --topbar-height: 60px;
+  --content-max: 1400px;
+
+  /* ---- Z-index ------------------------------------------------------------- */
+  /* Named so nobody has to guess whether 9999 is enough. */
+  --z-base: 0;
+  --z-sticky: 10;
+  --z-sidebar: 30;
+  --z-backdrop: 40;
+  --z-modal: 50;
+  --z-palette: 60;
+  --z-toast: 70;
+}
+
+/* ============================================================================
+   Dark theme
+   ----------------------------------------------------------------------------
+   Applied when the user explicitly chooses dark, or when they have expressed
+   no preference and the OS asks for it. The :not([data-theme="light"]) guard
+   means an explicit light choice always wins over the media query.
+   ========================================================================== */
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --canvas: #0A0D14;
+    --surface: #11151F;
+    --surface-2: #171C28;
+    --surface-3: #222937;
+    --text: #F2F5FA;
+    --text-secondary: #B4BECD;   /* 9.1:1 on --surface */
+    --text-muted: #8A94A6;       /* 5.2:1 on --surface */
+    --border: #232A38;
+    --border-strong: #333C4D;
+    --overlay: rgba(0, 0, 0, .62);
+
+    --sidebar-bg: #0D111A;
+    --sidebar-item: #B4BECD;
+    --sidebar-item-hover-bg: #171C28;
+    --sidebar-item-active-bg: rgba(109, 94, 248, .16);
+    --sidebar-item-active: #B7ADFF;
+
+    /* Saturated brand colours vibrate against dark grounds; these are lifted
+       in lightness so they stay legible without glowing. */
+    --brand-500: #8B7CFF;
+    --brand-600: #A395FF;
+    --brand-50: rgba(109, 94, 248, .14);
+    --accent-fg: #4FD8EE;
+    --success-fg: #4ADE80;
+    --success-bg: rgba(22, 163, 74, .13);
+    --warning-fg: #FBBF24;
+    --warning-bg: rgba(245, 158, 11, .13);
+    --danger-fg: #FCA5A5;
+    --danger-bg: rgba(239, 68, 68, .13);
+    --info-bg: rgba(59, 130, 246, .13);
+
+    --skeleton-from: #171C28;
+    --skeleton-to: #222937;
+
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, .4);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, .45);
+    --shadow-md: 0 4px 14px rgba(0, 0, 0, .5);
+    --shadow-lg: 0 14px 36px rgba(0, 0, 0, .58);
+    --shadow-focus: 0 0 0 3px rgba(139, 124, 255, .36);
+  }
+}
+
+/* The same values again for an explicit dark choice, so the toggle wins in
+   both directions regardless of the OS setting. */
+:root[data-theme="dark"] {
+  --canvas: #0A0D14;
+  --surface: #11151F;
+  --surface-2: #171C28;
+  --surface-3: #222937;
+  --text: #F2F5FA;
+  --text-secondary: #B4BECD;
+  --text-muted: #8A94A6;
+  --border: #232A38;
+  --border-strong: #333C4D;
+  --overlay: rgba(0, 0, 0, .62);
+
+  --sidebar-bg: #0D111A;
+  --sidebar-item: #B4BECD;
+  --sidebar-item-hover-bg: #171C28;
+  --sidebar-item-active-bg: rgba(109, 94, 248, .16);
+  --sidebar-item-active: #B7ADFF;
+
+  --brand-500: #8B7CFF;
+  --brand-600: #A395FF;
+  --brand-50: rgba(109, 94, 248, .14);
+  --accent-fg: #4FD8EE;
+  --success-fg: #4ADE80;
+  --success-bg: rgba(22, 163, 74, .13);
+  --warning-fg: #FBBF24;
+  --warning-bg: rgba(245, 158, 11, .13);
+  --danger-fg: #FCA5A5;
+  --danger-bg: rgba(239, 68, 68, .13);
+  --info-bg: rgba(59, 130, 246, .13);
+
+  --skeleton-from: #171C28;
+  --skeleton-to: #222937;
+
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, .4);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, .45);
+  --shadow-md: 0 4px 14px rgba(0, 0, 0, .5);
+  --shadow-lg: 0 14px 36px rgba(0, 0, 0, .58);
+  --shadow-focus: 0 0 0 3px rgba(139, 124, 255, .36);
+}
+
+/* Tells the browser to render form controls and scrollbars for the active
+   theme. Without this, native widgets stay light on a dark page. */
+:root { color-scheme: light; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { color-scheme: dark; } }
+:root[data-theme="dark"] { color-scheme: dark; }
+:root[data-theme="light"] { color-scheme: light; }

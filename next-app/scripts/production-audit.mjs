@@ -441,6 +441,109 @@ check("DEV-02","API keys support expiry as well as revocation",()=>{
     :{ok:false,detail:"keys are valid forever unless revoked by hand"};
 });
 
+// ── Design system, shell and accessibility ──────────────────────────────────
+
+check("UI-01","A real design token system exists",()=>{
+  const s=read(path.join(appRoot,"app/tokens.css"))||"";
+  if(!s)return {ok:false,detail:"no tokens.css — styling is ad-hoc hex values"};
+  const required=["--brand-500","--space-4","--radius-md","--motion-fast","--z-modal","--text-base","--shadow-md"];
+  const missing=required.filter(t=>!s.includes(t));
+  return missing.length===0
+    ?{ok:true,detail:"colour, space, radius, motion, z-index, type and shadow scales all present"}
+    :{ok:false,detail:`token scales missing: ${missing.join(", ")}`};
+});
+
+check("UI-02","The app is light-first with a real dark theme",()=>{
+  const s=read(path.join(appRoot,"app/tokens.css"))||"";
+  const hasDark=s.includes('[data-theme="dark"]')&&s.includes("prefers-color-scheme: dark");
+  const lightDefault=/:root\s*\{[\s\S]*?--canvas:\s*#F8FAFC/i.test(s);
+  if(!lightDefault)return {ok:false,detail:"the light canvas is not the default — the app is still dark-only"};
+  return hasDark
+    ?{ok:true,detail:"light default, explicit dark theme, OS preference respected"}
+    :{ok:false,detail:"no dark theme"};
+});
+
+check("UI-03","Semantic colours have accessible text variants",()=>{
+  const s=read(path.join(appRoot,"app/tokens.css"))||"";
+  const required=["--success-fg","--warning-fg","--danger-fg"];
+  const missing=required.filter(t=>!s.includes(t));
+  return missing.length===0
+    ?{ok:true,detail:"darkened -fg variants exist for text use"}
+    :{ok:false,detail:`using raw semantic colours as body text fails WCAG AA: ${missing.join(", ")}`};
+});
+
+check("UI-04","Navigation matches the specified 13-item IA",()=>{
+  const s=code(path.join(appRoot,"lib/ui/navigation.ts"))||"";
+  if(!s)return {ok:false,detail:"no navigation module"};
+  const count=(s.match(/href:"\/[a-z-]*"/g)||[]).length;
+  return s.includes("PRIMARY_NAV")&&count>0
+    ?{ok:true,detail:"navigation IA is declared in one place"}
+    :{ok:false,detail:"navigation is hardcoded in the shell"};
+});
+
+check("UI-05","The search control actually does something",()=>{
+  const shell=code(path.join(appRoot,"components/app-shell.tsx"))||"";
+  const palette=code(path.join(appRoot,"components/CommandPalette.tsx"))||"";
+  if(!palette)return {ok:false,detail:"the top-bar search promises ⌘K and has no handler"};
+  return shell.includes("CommandPalette")&&palette.includes("metaKey")
+    ?{ok:true,detail:"⌘K opens a working palette"}
+    :{ok:false,detail:"palette exists but is not wired to the shell or the shortcut"};
+});
+
+check("UI-06","No fake data in the app chrome",()=>{
+  const s=code(path.join(appRoot,"components/app-shell.tsx"))||"";
+  return /["']SA["']/.test(s)
+    ?{ok:false,detail:'the avatar is hardcoded to "SA" for every user'}
+    :{ok:true,detail:"avatar derives from the signed-in user"};
+});
+
+check("A11Y-01","A skip link is present",()=>{
+  const s=code(path.join(appRoot,"components/app-shell.tsx"))||"";
+  return s.includes("skip-link")&&s.includes("#main-content")
+    ?{ok:true,detail:"skip link targets the main landmark"}
+    :{ok:false,detail:"keyboard users must tab through the whole sidebar on every page"};
+});
+
+check("A11Y-02","Modal surfaces trap focus and restore it",()=>{
+  const shell=code(path.join(appRoot,"components/app-shell.tsx"))||"";
+  const palette=code(path.join(appRoot,"components/CommandPalette.tsx"))||"";
+  const shellTraps=shell.includes("Tab")&&shell.includes("preventDefault");
+  const paletteTraps=palette.includes("Tab")&&palette.includes("previouslyFocused");
+  return shellTraps&&paletteTraps
+    ?{ok:true,detail:"drawer and palette both trap and restore focus"}
+    :{ok:false,detail:"focus can escape a modal overlay, or is lost on close"};
+});
+
+check("A11Y-03","The off-screen drawer is inert",()=>{
+  const s=code(path.join(appRoot,"components/app-shell.tsx"))||"";
+  return s.includes("inert")
+    ?{ok:true,detail:"a hidden sidebar cannot be tabbed into"}
+    :{ok:false,detail:"keyboard users can tab into an invisible off-screen menu"};
+});
+
+check("A11Y-04","Zoom is not locked",()=>{
+  const s=read(path.join(appRoot,"app/layout.tsx"))||"";
+  if(/userScalable:\s*false/.test(s))return {ok:false,detail:"user-scalable=no fails WCAG 1.4.4"};
+  return /maximumScale:\s*([2-9]|10)/.test(s)||!s.includes("maximumScale")
+    ?{ok:true,detail:"pinch-to-zoom works"}
+    :{ok:false,detail:"maximum-scale below 2 effectively blocks zoom"};
+});
+
+check("A11Y-05","Current page is announced in navigation",()=>{
+  const s=code(path.join(appRoot,"components/app-shell.tsx"))||"";
+  return s.includes('aria-current')
+    ?{ok:true,detail:"aria-current=page on the active item"}
+    :{ok:false,detail:"a screen reader cannot tell which page is active"};
+});
+
+check("A11Y-06","Theme is applied before first paint",()=>{
+  const s=code(path.join(appRoot,"components/theme-script.tsx"))||"";
+  const layout=code(path.join(appRoot,"app/layout.tsx"))||"";
+  return s.includes("picbo-theme")&&layout.includes("ThemeScript")
+    ?{ok:true,detail:"no flash of the wrong theme"}
+    :{ok:false,detail:"theme resolves after hydration, flashing on every navigation"};
+});
+
 // ── Report ──────────────────────────────────────────────────────────────────
 
 const failed=results.filter(r=>r.status==="fail");

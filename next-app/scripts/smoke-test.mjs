@@ -19,10 +19,13 @@ const BASE=process.env.BASE_URL||"http://127.0.0.1:3111";
 const results=[];
 
 async function probe(method,path,init={}){
-  const res=await fetch(`${BASE}${path}`,{method,redirect:"manual",...init});
+  const {full,...fetchInit}=init;
+  const res=await fetch(`${BASE}${path}`,{method,redirect:"manual",...fetchInit});
   const location=res.headers.get("location");
   let body="";
-  try{body=(await res.text()).slice(0,20000)}catch{}
+  // HTML pages are capped to keep failure output readable; asset bundles are
+  // read whole, because the interesting rules live at the end of the file.
+  try{const text=await res.text();body=full?text:text.slice(0,20000)}catch{}
   return {status:res.status,location,body,contentType:res.headers.get("content-type")||""};
 }
 
@@ -239,6 +242,62 @@ async function run(){
     expect("Image Studio requires a session",
       redirectsToSignIn(r),
       `got ${r.status} -> ${r.location||"(none)"}`);
+  }
+
+
+  // ── Phase 4: design system, shell and accessibility ───────────────────────
+
+  {
+    const r=await probe("GET","/auth/sign-in");
+    expect("Theme is applied before first paint",
+      r.body.includes("picbo-theme"),
+      "no inline theme script — the page will flash the wrong theme on load");
+    expect("Zoom is not locked",
+      !/user-scalable\s*=\s*no/i.test(r.body)&&!/maximum-scale=1[,"]/.test(r.body),
+      "viewport locks zoom, which fails WCAG 1.4.4");
+    expect("Viewport meta is present",
+      /name="viewport"/i.test(r.body),
+      "no viewport meta — mobile renders at desktop width");
+  }
+
+  {
+    const r=await probe("GET","/");
+    expect("The landing page declares a language",
+      /<html[^>]+lang=/i.test(r.body),
+      "no lang attribute — screen readers guess the pronunciation");
+    expect("Open Graph metadata is present on public pages",
+      /property="og:/i.test(r.body),
+      "no OG tags — links unfurl as bare URLs");
+    expect("Twitter card metadata is present",
+      /name="twitter:card"/i.test(r.body),
+      "no Twitter card");
+  }
+
+  {
+    // The stylesheet is the design system; if it did not load, every route is
+    // unstyled and no amount of markup correctness matters.
+    const page=await probe("GET","/auth/sign-in");
+    const cssHref=(page.body.match(/href="(\/_next\/static\/css\/[^"]+)"/)||[])[1];
+    expect("A stylesheet is linked",Boolean(cssHref),"no CSS bundle referenced");
+
+    if(cssHref){
+      const css=await probe("GET",cssHref,{full:true});
+      expect("Design tokens are in the built CSS",
+        css.body.includes("--brand-500")&&css.body.includes("--motion-fast"),
+        "token custom properties are missing from the bundle");
+      expect("Dark theme ships in the bundle",
+        /data-theme=["']?dark["']?/.test(css.body),
+        "no dark theme block");
+      expect("Reduced motion is honoured",
+        css.body.includes("prefers-reduced-motion"),
+        "animation plays regardless of the OS accessibility setting");
+      expect("A skip link exists in the design system",
+        css.body.includes("skip-link"),
+        "no skip link styling");
+      expect("Focus-visible styling is global",
+        css.body.includes("focus-visible"),
+        "keyboard focus may be invisible");
+    }
   }
 
   // ── Report ────────────────────────────────────────────────────────────────
