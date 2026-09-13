@@ -72,3 +72,38 @@ test("sign-in and sign-up are still bounced for a signed-in user",()=>{
   assert.equal(isAuthRouteAllowedWhileSignedIn("/auth/sign-in"),false);
   assert.equal(isAuthRouteAllowedWhileSignedIn("/auth/sign-up"),false);
 });
+
+/**
+ * Unconfigured-deployment behaviour.
+ *
+ * A fresh Vercel deploy with no Supabase credentials returned
+ * MIDDLEWARE_INVOCATION_FAILED — an opaque 500 — for *every* page, including
+ * the public marketing pages that need no auth at all.
+ *
+ * It did not reproduce locally: `next start` runs middleware in the Node
+ * runtime, which tolerated `createServerClient(undefined!, undefined!)`, while
+ * Vercel runs middleware on Edge, where it throws. These assertions pin the
+ * classification middleware uses to decide what it can still serve without
+ * credentials, so the branch cannot be removed without failing here.
+ */
+
+test("public pages are identifiable without touching Supabase",()=>{
+  // These must render on an unconfigured deployment — they need no session.
+  for(const p of ["/","/pricing","/legal/privacy","/legal/terms","/auth/sign-in"]){
+    assert.equal(isPublicPage(p),true,`${p} must be servable with no credentials`);
+  }
+});
+
+test("protected pages are still recognised as needing a session",()=>{
+  // These cannot be served honestly without credentials, so they must be
+  // classified as non-public and get a diagnostic rather than a blank 500.
+  for(const p of ["/dashboard","/create/image","/billing","/settings"]){
+    assert.equal(isPublicPage(p),false,`${p} must not be served unconfigured`);
+  }
+});
+
+test("the health check stays reachable on an unconfigured deployment",()=>{
+  // It is the one endpoint that must answer, because it is what tells an
+  // operator which variables are missing.
+  assert.equal(isSelfAuthenticatingApi("/api/health/check"),true);
+});

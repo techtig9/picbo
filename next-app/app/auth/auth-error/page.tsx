@@ -35,6 +35,13 @@ const REASONS:Record<string,{title:string;body:string;retry:boolean}>={
     title:"Your session expired",
     body:"You've been signed out for security. Sign in again to pick up where you left off.",
     retry:true
+  },
+  not_configured:{
+    // Shown by middleware when a deployment has no Supabase credentials yet.
+    // Without this the whole app returned an opaque MIDDLEWARE_INVOCATION_FAILED.
+    title:"This deployment isn't configured yet",
+    body:"Picbo needs its Supabase credentials before anyone can sign in. Set NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY and SUPABASE_SERVICE_ROLE_KEY in your hosting environment, then redeploy. Open /api/health/check to see exactly what is still missing.",
+    retry:false
   }
 };
 

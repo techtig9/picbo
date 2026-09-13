@@ -12,10 +12,46 @@ export async function middleware(request:NextRequest){
   // Paddle webhook is not delayed by an auth round-trip it can never satisfy.
   if(isSelfAuthenticatingApi(path))return NextResponse.next();
 
+  /**
+   * Degrade cleanly when Supabase is not configured.
+   *
+   * Without this, `createServerClient(undefined!, undefined!)` throws and
+   * Vercel returns an opaque `MIDDLEWARE_INVOCATION_FAILED` 500 for **every**
+   * page — including the public marketing pages, which need no auth at all.
+   *
+   * This does not reproduce on a local `next start`: middleware runs in the
+   * Node runtime there and tolerated the undefined values, but Vercel runs
+   * middleware on Edge, where it throws. The failure only appears once
+   * deployed, which is the worst place to discover it.
+   *
+   * Public pages are let through so a freshly-deployed, not-yet-configured
+   * app is still browsable. Anything requiring a session cannot be served
+   * honestly, so it gets a clear diagnostic instead of a blank 500 — and
+   * `GET /api/health/check` names exactly which variables are missing.
+   */
+  const supabaseUrl=process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey=process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if(!supabaseUrl||!supabaseAnonKey){
+    if(isPublicPage(path))return NextResponse.next();
+    if(isApiPath(path)){
+      return NextResponse.json(
+        {
+          error:"SUPABASE_NOT_CONFIGURED",
+          message:"This deployment has no Supabase credentials. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY, then redeploy."
+        },
+        {status:503}
+      );
+    }
+    const setup=new URL("/auth/auth-error",request.url);
+    setup.searchParams.set("reason","not_configured");
+    return NextResponse.redirect(setup);
+  }
+
   let response=NextResponse.next({request});
   const supabase=createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    supabaseUrl,
+    supabaseAnonKey,
     {
       cookies:{
         getAll(){return request.cookies.getAll()},
