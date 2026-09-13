@@ -370,6 +370,33 @@ async function run(){
       "internal queue depth exposed publicly");
   }
 
+
+  // ── Unconfigured deployment must still serve its public surface ───────────
+  //
+  // A production deploy with no Supabase credentials showed Next's default
+  // white "Application error: a server-side exception has occurred" page on
+  // the landing page, because every server page calls createClient() and
+  // createServerClient(undefined!, undefined!) throws.
+  //
+  // /pricing kept working throughout (it is fully static and touches no
+  // Supabase call), which is exactly why testing it alone was not enough —
+  // these run the whole public surface, including the one route a visitor
+  // actually lands on.
+
+  for(const path of ["/","/legal/privacy","/legal/terms","/auth/sign-up","/auth/forgot-password"]){
+    const r=await probe("GET",path);
+    expect(`${path} renders without Supabase credentials`,
+      r.status===200,
+      `got ${r.status} — a server exception here is the white "Application error" screen`);
+  }
+
+  {
+    const r=await probe("GET","/");
+    expect("The landing page renders real content, not an error stub",
+      r.body.includes("Product-to-Advertising"),
+      "landing page returned 200 but without its content");
+  }
+
   // ── Report ────────────────────────────────────────────────────────────────
 
   const failed=results.filter(r=>!r.ok);
