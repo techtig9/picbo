@@ -10,6 +10,62 @@ customers". Ordered so that each section unblocks the next.
 
 ---
 
+## 0. Vercel deployment — read this first
+
+The project is linked at **techtig/picbo** with **root directory `next-app`** (the repo
+is a monorepo; without that setting Vercel builds the wrong folder).
+
+### Two gotchas that will cost you an hour each
+
+**1. Set the variables, then REDEPLOY.** Vercel does not rebuild when you change an
+environment variable. Two things here are read at *build* time, not request time:
+
+- `next.config.ts` builds the Content-Security-Policy from `NEXT_PUBLIC_SUPABASE_URL`.
+  Set the variable but skip the redeploy and the CSP will still lack your storage
+  origin — **every generated image and upload preview will be silently blocked by the
+  browser**, with no server-side error to find.
+- `NEXT_PUBLIC_*` values are inlined into the client bundle at build time.
+
+After adding variables: Deployments → latest → ⋯ → **Redeploy**.
+
+**2. `NEXT_PUBLIC_APP_URL` must match your real URL exactly.** It is what OAuth redirect
+URLs are built from, and a mismatch (http vs https, trailing slash, preview vs production
+host) is the most common cause of a failed Google callback.
+
+### Deployment protection
+
+New projects inherit the team default, which is **Vercel Authentication on** — the URL
+requires a Vercel login, so it is not publicly shareable. Turn it off at
+Project → Settings → Deployment Protection if you want an open demo link.
+
+### What works before any configuration
+
+Thanks to the graceful-degradation fix, an unconfigured deployment is still browsable:
+
+| Route | Unconfigured behaviour |
+|---|---|
+| `/`, `/pricing`, `/legal/*` | Render normally |
+| `/auth/sign-in`, `/auth/sign-up` | Render; submitting will fail until Supabase is set |
+| `/dashboard` and other app routes | Redirect to a page explaining what to configure |
+| `/api/health/check` | **503 listing exactly which variables are missing** — use this as your progress checklist |
+| `/robots.txt`, `/sitemap.xml` | Serve correctly |
+
+### Minimum to make sign-in work
+
+Four variables, then redeploy:
+
+```
+NEXT_PUBLIC_SUPABASE_URL
+NEXT_PUBLIC_SUPABASE_ANON_KEY
+SUPABASE_SERVICE_ROLE_KEY
+NEXT_PUBLIC_APP_URL
+```
+
+Then run the migrations (§2) — without them, sign-in succeeds but every query fails,
+because no tables exist.
+
+---
+
 ## 1. Required — the app will not start without these
 
 | Variable | Where to get it | Notes |
