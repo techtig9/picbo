@@ -1,0 +1,6 @@
+export type AdAspect="9:16"|"4:5"|"1:1"|"16:9";
+export function dimensions(a:AdAspect){return a==="9:16"?{width:1080,height:1920}:a==="4:5"?{width:1080,height:1350}:a==="1:1"?{width:1080,height:1080}:{width:1920,height:1080}}
+export interface AdOverlay{type:"hook"|"feature"|"price"|"cta"|"logo"|"caption";text?:string;startMs:number;endMs:number;position:"top"|"center"|"bottom";fontSize:number;opacity:number}
+export interface AdTimeline{durationMs:number;aspect:AdAspect;scenes:any[];overlays:AdOverlay[];musicPath?:string;voicePath?:string;musicVolume:number;voiceVolume:number;logoPath?:string}
+export function normalizeTimeline(t:AdTimeline):AdTimeline{return {...t,durationMs:Math.min(15000,Math.max(1000,t.durationMs)),scenes:t.scenes.map(s=>({...s,startMs:Math.max(0,Math.min(15000,s.startMs)),endMs:Math.max(0,Math.min(15000,s.endMs))})).filter(s=>s.endMs>s.startMs),overlays:t.overlays.map(o=>({...o,startMs:Math.max(0,Math.min(15000,o.startMs)),endMs:Math.max(0,Math.min(15000,o.endMs)),opacity:Math.max(0,Math.min(1,o.opacity)),fontSize:Math.max(12,Math.min(120,o.fontSize))})).filter(o=>o.endMs>o.startMs)}}
+export function validate15SecondAd(t:AdTimeline){if(t.durationMs!==15000)throw new Error("AD_DURATION_MUST_BE_15_SECONDS");if(!t.scenes.length)throw new Error("AD_NEEDS_SCENES");return true}
